@@ -1,0 +1,3 @@
+:%s/^M/\n/g
+
+where, to type ^M, type Ctrl-V Ctrl-M.
