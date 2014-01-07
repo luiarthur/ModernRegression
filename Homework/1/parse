@@ -1,0 +1,5 @@
+:%s/^M/\n/g
+
+where, to type ^M, type Ctrl-V Ctrl-M.
+
+wget http://mheaton.byu.edu/Courses/Stat536/Case%20Studies/Credit/Data/Credit.csv
