@@ -39,3 +39,7 @@ mod2 <- lm(Balance ~ Income + Limit + Rating + Age + Cards + Student, data=credi
 
 summary(mod1)
 summary(mod2)
+plot(resid(mod2)) #Residuals not symmetric, looks Gamma
+plot(density(resid(mod2)))
+# How do I get the Bias?
+# How do I get the MSE?
