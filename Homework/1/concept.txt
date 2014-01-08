@@ -1,0 +1,30 @@
+Arthur Lui 
+Stat536
+Conceptualization Sheet 1
+
+Goals of case study:
+  Predict the balance of cardholders BEFORE issuing card.  Determine
+  characteristics of a cardholder that lead to high balances. 
+
+  Want: Moderate Balance 
+  Avoid: High Balance 
+  Don't Care about: Low Balance
+
+Key features of statistical analysis:
+  Multpile Linear Regression with Qualitative and Quantitative Variabels
+  
+  Response: 
+    Balance (quantitative)
+  Input:
+    Quantitative: | Qualitative:
+      Income      |   Cards
+      Limit       |   Gender
+      Rating      |   Student
+      Age         |   Married
+                  |   Ethnicity
+  Need to combine cards category 
+  (i.e. group card holders with 7 or more cards together into 7+)
+
+Potential Model:
+  Linear Model
+
