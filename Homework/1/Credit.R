@@ -5,6 +5,7 @@
 rm(list=ls())
 options("width"=120)
 library(car) #vif
+
 credit <- read.table("http://mheaton.byu.edu/Courses/Stat536/Case%20Studies/Credit/Data/Credit.csv",header=T,sep=",")
 credit <- credit[,-1]
 credit <- as.data.frame(credit)
@@ -29,43 +30,50 @@ credit <- as.data.frame(credit)
 #table(credit$Married)
 #table(credit$Ethnicity)
 
-credit$Gender <- factor(credit$Gender)
-credit$Student <- factor(credit$Student)
-credit$Married <- factor(credit$Married)
-credit$Ethnicity <- factor(credit$Ethnicity)
+trainSet <- sample(1:400,390)
+testSet  <- setdiff(1:400,trainSet)
+  
+train <- credit[trainSet,]
+test  <- credit[testSet,]
 
+train$Gender <- factor(train$Gender)
+train$Student <- factor(train$Student)
+train$Married <- factor(train$Married)
+train$Ethnicity <- factor(train$Ethnicity)
 
-lower.mod <- lm(Balance ~ 1, data=credit)
-upper.mod <- lm(Balance ~ ., data=credit)
+lower.mod <- lm(Balance ~ 1, data=train)
+upper.mod <- lm(Balance ~ ., data=train)
 
 summary(upper.mod)
 
-forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=upper.mod),upper=upper.mod,data=supervisor,direction="both")
-mod2 <- lm(Balance ~ Income + Limit + Rating + Cards + Age + Student, data=credit)
+forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=upper.mod),upper=upper.mod,direction="both")
+mod <- eval(forwardS$call)
 
-summary(mod2)
+summary(mod)
 
-plot(resid(mod2)) #Residuals not symmetric, looks Gamma
+plot(resid(mod)) #Residuals not symmetric, looks Gamma
 # How do I get the Bias?
 # How do I get the MSE?
 
-vif(mod2)
+vif(mod)
   # Limit  15.44
   # Rating 15.47
   
 # Throw out Rating because of high VIC?
-mod3 <- lm(Balance ~ Income + Limit + Age + Cards + Student, data=credit)
-summary(mod3)
-vif(mod3)
-hist(resid(mod3))
+hist(resid(mod))
 
-int.mod <- lm(Balance ~ .^2, data=credit) 
-forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,data=supervisor,direction="both")
+int.mod <- lm(Balance ~ .^2, data=train) 
+forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,direction="both")
 
-mod3 <- lm(Balance ~ Rating + Income + Student + Limit + Cards + Age + Education + Ethnicity + 
-                     Rating:Income + Rating:Limit + Student:Limit + Income:Student + Rating:Age + 
-                     Income:Age + Income:Limit + Income:Education + Limit:Education + Education:Ethnicity, data=credit) 
-
-summary(mod3)
+mod2 <- eval(forwardS$call)
+summary(mod2)
 
 
+# Test the test set for mod2
+#X <- credit[testSet,]
+#x <- cbind(1, X$Rating, X$Income, X$Student, X$Limit, X$Cards, X$Age)
+#x[,4] <- x[,4] - 1
+#b <- mod$coefficients
+#
+#x %*% b
+#X
