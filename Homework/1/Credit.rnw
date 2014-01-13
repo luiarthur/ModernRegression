@@ -1,3 +1,20 @@
+
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{amssymb}
+\usepackage{Sweave}
+\usepackage{bm}
+\usepackage{mathtools}
+\def\wl{\par \vspace{\baselineskip}}
+
+\begin{document}
+\title{Stat535 HW11}
+\author{Arthur Lui}
+\maketitle
+
+\subsection*{Code and Homework (Sorry for the sloppyness...)}
+
+<<design,echo=T>>=
 # Goal: Predict the balance of cardholders BEFORE issuing card
 #       Determining characteristics of a cardholder that lead to high balances
 #       Want: Moderate Balance, Avoid: High Balance, Don't Care about: Low Balance
@@ -81,3 +98,6 @@ par(mfrow=c(1,1))
 #
 #x %*% b
 #X
+@
+
+\end{document}
