@@ -13,9 +13,9 @@
 \author{Arthur Lui}
 \maketitle
 
-\subsection*{Code and Homework (Sorry for the sloppyness...)}
+\subsection*{Code?}
 
-<<design,echo=T>>=
+<<design,echo=F>>=
 # Goal: Predict the balance of cardholders BEFORE issuing card
 #       Determining characteristics of a cardholder that lead to high balances
 #       Want: Moderate Balance, Avoid: High Balance, Don't Care about: Low Balance
