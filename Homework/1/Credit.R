@@ -32,11 +32,11 @@ credit <- as.data.frame(credit)
 #table(credit$Married)
 #table(credit$Ethnicity)
 
-trainSet <- sample(1:400,300)
-testSet  <- setdiff(1:400,trainSet)
+trainI <- sample(1:400,300)
+testI  <- setdiff(1:400,trainI)
 
-train <- credit[trainSet,]
-test  <- credit[testSet,]
+train <- credit[trainI,]
+test  <- credit[testI,]
 
 train$Gender <- factor(train$Gender)
 train$Student <- factor(train$Student)
@@ -67,12 +67,14 @@ lower.mod <- lm(Balance ~ 1, data=train)
 
 # Interaction Model
 int.mod <- lm(Balance ~ .^2, data=train) 
-forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,direction="both")
+#forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,direction="both",k=log(400)) #BIC
+forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,direction="forward",k=log(400)) #BIC
+#forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,direction="both") #AIC
 
-mod2 <- eval(forwardS$call)
-summary(mod2)
-hist(resid(mod2))
-qqnorm(resid(mod2))
+mod <- eval(forwardS$call)
+summary(mod)
+hist(resid(mod))
+qqnorm(resid(mod))
 par(mfrow=c(1,1))
 
 # Test the test set for mod2
@@ -84,6 +86,7 @@ par(mfrow=c(1,1))
 #  ifelse(substr(s,p,p)==c,p,0)
 #}
 
+#Validate:
 swap <- function(s){
   #p <- pos(":",s)
   p <- regexpr(":",s)
@@ -97,18 +100,20 @@ swap <- function(s){
 }
 
 x <- model.matrix(Balance ~ .^2, data=test)
-b <- mod2$coef
+b <- mod$coef
 colnames(x) <- sapply(colnames(x),swap); colnames(x) <- unname(colnames(x))
 names(b) <- sapply(names(b),swap)
 
 x <- x[, names(b)]
 
 pred <- x %*% b
+pred[pred<0] <- 0
 MSE <- mean((test[,"Balance"]-pred)^2)
 
+# Using regsubsets():
 #crazy <- regsubsets(Balance ~ .^2, data=train, nvmax=25, method="forward")
 #crazy.summ <- summary(crazy)
-#crazy.summ$rsq
+#crazy.summ$adjr2
 #coef(crazy,10)
 
 
