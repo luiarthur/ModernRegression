@@ -1,20 +1,3 @@
-% Read p.203-214
-
-\documentclass{article}
-\usepackage{fullpage}
-\usepackage{amssymb}
-\usepackage{Sweave}
-\usepackage{bm}
-\usepackage{mathtools}
-\def\wl{\par \vspace{\baselineskip}}
-
-\begin{document}
-\title{Stat535 HW11}
-\author{Arthur Lui}
-\maketitle
-
-% Code:
-<<design,echo=F>>=
 # Read: P.203-214, 245-250
 # Goal: Predict the balance of cardholders BEFORE issuing card
 #       Determining characteristics of a cardholder that lead to high balances
@@ -59,7 +42,7 @@ my.predict <- function(cof, dat){
 
 engine <- function(k){
 
-  #print(k)
+  print(k)
   trainI <- sample(1:400,300)
   testI  <- setdiff(1:400,trainI)
 
@@ -96,7 +79,7 @@ library(foreach)
 library(doMC)
 registerDoMC(16)
 
-N <- 100
+N <- 1000
 vars <- foreach(n=1:N) %dopar% engine(n)
 
 tab <- table(unlist(vars))
@@ -120,17 +103,3 @@ mod <- lm(as.formula(terms),data=X)
 
 #pred <- my.predict(coef(mod),X)
 #head(pred)
-@
-
-\subsection*{Problem Statement and Understanding:}
-\subsection*{Methods / Models Used:}
-\subsection*{Model Justification:}
-\subsection*{Results:}
-\subsection*{Conclusion:}
-
-\begin{center}
-<<fig=T,echo=FALSE>>=
-  my.plot()
-@
-\end{center}
-\end{document}

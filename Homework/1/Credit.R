@@ -68,7 +68,7 @@ lower.mod <- lm(Balance ~ 1, data=train)
 # Interaction Model
 int.mod <- lm(Balance ~ .^2, data=train) 
 #forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,direction="both",k=log(400)) #BIC
-forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,direction="forward",k=log(400)) #BIC
+forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,direction="both",k=log(400)) #BIC
 #forwardS <- step(lower.mod,scope=list(lower=lower.mod,upper=int.mod),upper=int.mod,direction="both") #AIC
 
 mod <- eval(forwardS$call)
@@ -111,9 +111,28 @@ pred[pred<0] <- 0
 MSE <- mean((test[,"Balance"]-pred)^2)
 
 # Using regsubsets():
-#crazy <- regsubsets(Balance ~ .^2, data=train, nvmax=25, method="forward")
-#crazy.summ <- summary(crazy)
-#crazy.summ$adjr2
-#coef(crazy,10)
+nvMax <- 25
+crazy <- regsubsets(Balance ~ .^2, data=train, nvmax=nvMax, method="seqrep")
+MSE <- NULL
 
+for (i in 1:nvMax){
+  cof <- coef(crazy,i)
 
+  x <- model.matrix(Balance ~ .^2, data=test)
+  b <- cof 
+  colnames(x) <- sapply(colnames(x),swap); colnames(x) <- unname(colnames(x))
+  names(b) <- sapply(names(b),swap)
+
+  x <- x[, names(b)]
+
+  pred <- x %*% b
+  pred[pred<0] <- 0
+
+  MSE[i] <- mean((test[,"Balance"]-pred)^2)
+}
+
+MSE
+
+#terms <- paste(names(cof)[-1],collapse="+")
+#terms <- paste("Balance ~",terms)
+#lm(as.formula(terms),data=train)
