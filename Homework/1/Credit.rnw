@@ -116,7 +116,7 @@ mod <- lm(as.formula(terms),data=X)
 @
 
 \subsection*{Problem Statement and Understanding:}
-Card holders with a low monthly balance are neither proﬁtable 
+Card holders with a low monthly balance are neither protable 
 nor a risk to companies. Card holders with moderate monthly 
 balances pose the ideal loan scenario for credit card companies.
 Card holders with a large monthly balance, however, pose a high 
