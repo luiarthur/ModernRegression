@@ -72,6 +72,7 @@ engine <- function(k){
   #                                        # one sd of the min MSE
   coefs <- coef(crazy,min.MSE)
   vars  <- names(coefs)
+
   vars
 }
 
@@ -96,10 +97,21 @@ params <- names(which(tab > h))
 terms <- paste(params[params!="(Intercept)"],collapse="+")
 terms <- paste("Balance ~",terms)
 
-X <- model.matrix(Balance ~ .^2, data=credit)
-X <- as.data.frame(cbind(credit$Balance,X))
+trainI <- sample(1:400,300)
+testI  <- setdiff(1:400,trainI)
+
+train <- credit[trainI,]
+test  <- credit[testI,]
+
+X <- model.matrix(Balance ~ .^2, data=train)
+X <- as.data.frame(cbind(train$Balance,X))
 names(X)[1] <- "Balance"
+
+Y <- model.matrix(Balance ~ .^2, data=test)
+Y <- as.data.frame(cbind(test$Balance,Y))
+names(Y)[1] <- "Balance"
+
 mod <- lm(as.formula(terms),data=X)
 
-#pred <- my.predict(coef(mod),X)
-#head(pred)
+pred <- predict(mod,Y,interval='prediction',level=.95)
+mean((pred[,2] < Y$Balance) & (Y$Balance < pred[,3]))
