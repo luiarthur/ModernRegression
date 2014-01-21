@@ -203,12 +203,22 @@ model, the parameters were still significant.
 \wl\noindent
 %plot(resid(mod))
 I assumed normal errors in the model. Plotting the residuals of my model reveals 
-that the errors are indeed approximately normal. So the normal assumption was met. 
+that the errors are indeed approximately normal (See Figrue 1). 
+So the normal assumption was met. 
+\begin{figure}
+\begin{center}
+<<fig=T,echo=F>>=
+  qqnorm(resid(mod))
+@
+\caption{Normal Q-Q Plot for model. The plot looks linear, indicating that 
+         the residuals are approximately normal.}
+\end{center}
+\end{figure}
 
 \subsection*{Results:}
 I performed backward selection 1000 times, each time using a different subset of 
 the data as a training set. The coefficients that appeared the most number of
-times in the 1000 iterations were selected into the final model. (See Figure.1)
+times in the 1000 iterations were selected into the final model. (See Figure 2)
 \begin{figure}
 \begin{center}
 <<fig=T,echo=FALSE>>=
