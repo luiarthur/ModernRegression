@@ -70,9 +70,10 @@ library(foreach)
 library(doMC)
 registerDoMC(16)
 
-get.se <- function(B=100){
+get.se <- function(B=1000){
   cat(paste(rep("#",50),collapse="")); cat("\n")
-  boot <- GDP[sample(1:nrow(GDP), nrow(GDP), replace=T),]
+  K <- nrow(GDP) # How do I choose K?
+  boot <- GDP[sample(1:nrow(GDP), K, replace=T),]
   estimates <- foreach(b=1:B,.combine=cbind) %dopar% get.estimate(boot,b)
   beta.se <- apply(estimates,1,sd)
   cat("\n")
@@ -82,9 +83,11 @@ get.se <- function(B=100){
 Estimates <- get.estimate(GDP)
 SE <- get.se(1000)
 t <- Estimates/SE
-p.value <- NA#2*pt(t,length(Estimates)-1)
+p.value <- NA # 2*pt(t,length(Estimates)-1)
 
 summary.model <- cbind(Estimates,SE,t,p.value)
 colnames(summary.model) <- c("Estimate","Std. Error","t-value","Pr(>|t|)")
 
-head(summary.model)
+sorted.model <- as.matrix(summary.model[order(abs(summary.model[,1]),
+                          decreasing=T),])
+head(sorted.model)
