@@ -1,0 +1,43 @@
+features
+problems with data
+
+linaer: GOVSH61, GVR61
+
+Corr > .95, except for 1: ORTH00, ORTHFRAC
+       .9: 7
+       .8: 21
+       .7: 58
+
+Improve  on collinearity
+
+
+/5pts Problem Statement and Understanding
+  Does the report suciently describe the background of the problem?
+  Are the goals of the analysis clearly stated?
+
+/15pts Describe the method/model(s) that are used.
+  Was a brief description of method/model used given in the report?
+  Were any greek letters used clearly defined?
+  Were any explicit or implicit assumptions needed to use the model adequately explained?
+
+/10pts Model Justification
+  Does the report describe why this model is appropriate for this data and how it solves
+  the current problem?
+  Are the assumptions of the model justified (e.g. via exploratory analysis)?
+
+/15pts Results
+  Does the report adequately answer the questions posed in the case study?
+  Were estimates of the parameters and their uncertainties given?
+  Were the parameters interpreted in the context of the problem?
+  Did the report summarize the main points of the results in non-statistical terms?
+
+/5pts Conclusions
+  Did the report discuss other potential approaches to solving the problem?
+  Did the report discuss any shortcomings of the approach/model used?
+  Did the report provide suggestions for next steps in the analysis or further questions
+  that may be of interest?
+
+/6pts Teamwork
+  If the report is done as a team, please provide a description of each team members
+  responsibility on the project.
+
