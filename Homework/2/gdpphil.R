@@ -31,16 +31,16 @@ ind <- which(this==1) # ind = index for categorical variables
 x <- X[,]
 x[,-ind] <- scale(X[,-ind])
 x[,ind] <- X[,ind]
-x <- cbind(rep(1,60),x)
+x <- cbind(1,x)
 y <- scale(Y)
 ridge_bet <-  solve(t(x) %*% x + diag(best_lambda,68)) %*% t(x) %*% y
+q <- solve ( t(x) %*% x + best_lambda * diag(ncol(x)) )
+k <- sum(diag(x %*% q %*% t(x)))
 
 s2 <- t(y - x %*% ridge_bet) %*% (y - x %*% ridge_bet) / (nrow(x)-k)
 s2 <- as.numeric(s2)
 sort(abs(ridge_bet))
 
-q <- solve ( t(x) %*% x + best_lambda * diag(ncol(x)) )
-k <- sum(diag(x %*% q %*% t(x)))
 
 se <- sqrt(diag(s2*q %*% t(x)%*%x * q))
 t <- ridge_bet / se
