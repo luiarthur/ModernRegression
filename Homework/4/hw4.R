@@ -1,2 +1,2 @@
-CWSI <- read.csv("CWSI.csv")
-plot(CWSI[,-1])
+soil <- read.csv("CWSI.csv")[,-1]
+plot(soil)
