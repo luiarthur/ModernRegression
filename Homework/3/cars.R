@@ -5,11 +5,14 @@ library(splines)
 # Data Readin and Cleaning:
   cars <- read.csv("Cars.csv",header=T)
   cars$cc[81] <- 1600 # Because this was obviously a mistake
-  cars <- cars[,-c(1,4,13)] # Cylinders is removed because they're all 4 Cylinders.
-  cols <- (1:ncol(cars))[-c(2,4,11)] 
-
+  cars <- cars[,-c(1,2,4,13)] #1:  Id removed because it's an index
+                              #2:  Model removed because all Corolla
+                              #4:  Age removed because redundant with year
+                              #13: Cylinders removed because all are 4 Cyls
+                              
+  cols <- (1:ncol(cars))[-c(1,3,10)] # Price, Miles, Weight are quantitative
   for (i in cols) {
-    cars[,i] <- as.factor(cars[,i])
+    cars[,i] <- as.factor(cars[,i])  # Every other covariate is a factor
   }
 
 
@@ -30,6 +33,12 @@ library(splines)
   plot.smooth.spline()
 
 # GAM:
-  gam.mod <- gam(Price ~ s(Miles) + ., data=cars)
-  # Fix This: plot(gam.mod, se=T, col='blue')
-  # Just for kicks. Can delete. Yup.
+  cars.gam <- cars; cars.gam$Miles <- s(cars$Miles)
+  #gam.mod <- gam(Price ~ ., data=cars.gam)
+  #summary(gam.mod)
+  #plot.gam(gam.mod, se=T, col='blue', ask=T)
+
+# GAM: mgcv
+  library(mgcv)
+  #gam.mod <- gam(Price ~ ., data=cars.gam)
+
