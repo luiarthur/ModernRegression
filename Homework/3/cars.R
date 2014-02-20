@@ -1,6 +1,11 @@
-options("width"=180)
+rm(list=ls())
+options("width"=80)
 
 cars <- read.csv("Cars.csv",header=T)
-# str(cars)
-#pairs(cars)
+cars$cc[81] <- 1600
 
+library(gam)
+library(splines)
+
+smooth.spline
+head(cars)
