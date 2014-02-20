@@ -30,4 +30,5 @@ library(splines)
   plot.smooth.spline()
 
 # GAM:
-  gam.mod <- gam(Price ~ s(Miles) + Weight + ., data=cars)
+  gam.mod <- gam(Price ~ s(Miles) + ., data=cars)
+  # Fix This: plot(gam.mod, se=T, col='blue')
