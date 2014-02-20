@@ -3,6 +3,9 @@ rm(list=ls())
 cars <- read.csv("Cars.csv",header=T)
 cars$cc[81] <- 1600 # Because this was obviously a mistake
 cars <- cars[,-c(1,4,13)] # Cylinders is removed because they're all 4 Cylinders.
+cols <- (1:ncol(cars))[-c(2,4)] 
+
+for (i in 1:ncol(cars)) 
 
 library(gam)
 library(splines)
@@ -25,4 +28,4 @@ library(splines)
   plot.smooth.spline()
 
 # GAM:
-  # gam <- 
+  gam.mod <- gam(Price
