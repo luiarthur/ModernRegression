@@ -32,3 +32,4 @@ library(splines)
 # GAM:
   gam.mod <- gam(Price ~ s(Miles) + ., data=cars)
   # Fix This: plot(gam.mod, se=T, col='blue')
+  # Just for kicks. Can delete.
