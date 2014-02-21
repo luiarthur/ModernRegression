@@ -1,0 +1,6 @@
+#!/usr/bin/env Rscript
+
+Sweave("cars.rnw")
+system("pdflatex cars.tex")
+system("rm *.tex *.log *.aux")
+system("firefox cars.pdf &")
