@@ -1,5 +1,4 @@
 rm(list=ls())
-library(gam)
 library(splines)
 
 # Data Readin and Cleaning:
@@ -33,12 +32,19 @@ library(splines)
   plot.smooth.spline()
 
 # GAM:
-  cars.gam <- cars; cars.gam$Miles <- s(cars$Miles)
+  #library(gam)
+  #cars.gam <- cars; cars.gam$Miles <- s(cars$Miles)
   #gam.mod <- gam(Price ~ ., data=cars.gam)
   #summary(gam.mod)
   #plot.gam(gam.mod, se=T, col='blue', ask=T)
 
 # GAM: mgcv
   library(mgcv)
-  #gam.mod <- gam(Price ~ ., data=cars.gam)
-
+  form <- paste(colnames(cars[,-1]),collapse="+")
+  form <- paste("Price ~", form)
+  gam.mod <- gam(as.formula(form), data=cars)
+  # Code to get P.I.:
+  #    pred <- predict.gam(gam.mod, newdata, se.fit=T)
+  #    pred.se <- sqrt(pred$se.fit^2+gam.mod$sig2)
+  #    pi.low <- pred$fit - qt(.975,df=gam.mod$df.residual) * pred.se
+  #    pi.up  <- pred$fit + qt(.975,df=gam.mod$df.residual) * pred.se
