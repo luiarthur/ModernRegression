@@ -99,4 +99,5 @@ rm(list=ls())
   sink("xtabP.tex"); xtab.p; sink()
   xtab.s <- xtable(sum.gam.mod$s.table)
   sink("xtabS.tex"); xtab.s; sink()
-
+  
+  plot.resid(); plot.qqnorm(); plot.smooth.spline()
