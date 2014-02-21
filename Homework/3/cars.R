@@ -96,6 +96,7 @@ rm(list=ls())
 
   library(xtable)
   xtab.p <- xtable(sum.gam.mod$p.table)
-  sink("xtabP.txt"); xtab.p; sink()
+  sink("xtabP.tex"); xtab.p; sink()
   xtab.s <- xtable(sum.gam.mod$s.table)
-  sink("xtabS.txt"); xtab.s; sink()
+  sink("xtabS.tex"); xtab.s; sink()
+
