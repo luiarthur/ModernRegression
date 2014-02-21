@@ -67,16 +67,16 @@ and $\int g''(t)^2dt$ will be large. So the larger $\lambda$ is, the smoother $g
 A smoothing spline was applied to Miles. No other functions were applied to other variables.
 After some variable selection, the GAM obtained contained:
 \begin{itemize}
-\item s(Miles)
-\item Manufacturing Year
-\item Fuel Type
-\item Horse Power
-\item Automatic
-\item Cylinder Capacity
-\item Manufacturing Guarantee
-\item Weight
-\item Automatic Air-conditioning
-\item Powered Windows
+  \item s(Miles)
+  \item Manufacturing Year
+  \item Fuel Type
+  \item Horse Power
+  \item Automatic
+  \item Cylinder Capacity
+  \item Manufacturing Guarantee
+  \item Weight
+  \item Automatic Air-conditioning
+  \item Powered Windows
 \end{itemize}
 
 From Figure 2, we can see that the residuals are approximately evenly spread out and centered about 0. 
