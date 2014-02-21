@@ -80,3 +80,10 @@ rm(list=ls())
   coverage  <- mean(pi.low < cars$Price & cars$Price < pi.up)
   mean.pred <- mean(pred$fit)
   mean.PI   <- mean(pi.up-pi.low)
+
+  plot.resid <- function(){
+    plot(gam.mod$residuals)
+  }  
+  plot.qqnorm <- function(){
+    qqnorm(gam.mod$residuals)
+  }
