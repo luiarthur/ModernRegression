@@ -1,5 +1,4 @@
 rm(list=ls())
-library(splines)
 
 # Data Readin and Cleaning:
   cars <- read.csv("Cars.csv",header=T)
@@ -29,9 +28,10 @@ library(splines)
            col="blue",lwd=3)
   }
   
-  plot.smooth.spline()
+  #plot.smooth.spline()
 
 # GAM:
+  #library(splines)
   #library(gam)
   #cars.gam <- cars; cars.gam$Miles <- s(cars$Miles)
   #gam.mod <- gam(Price ~ ., data=cars.gam)
@@ -39,12 +39,20 @@ library(splines)
   #plot.gam(gam.mod, se=T, col='blue', ask=T)
 
 # GAM: mgcv
+  #library(gam)
   library(mgcv)
-  form <- paste(colnames(cars[,-1]),collapse="+")
+  cars.gam <- cars; cars.gam$Miles <- s(cars$Miles)
+  form <- paste(colnames(cars.gam[,-1]),collapse="+")
   form <- paste("Price ~", form)
   gam.mod <- gam(as.formula(form), data=cars)
+
+  #low.mod <- lm(Price~1,data=cars)
+  #forw.gam.mod <- step(low.mod,scope=list(lower=low.mod,upper=gam.mod),upper=
+  #                     gam.mod,direction="both")
+
   # Code to get P.I.:
-  #    pred <- predict.gam(gam.mod, newdata, se.fit=T)
-  #    pred.se <- sqrt(pred$se.fit^2+gam.mod$sig2)
-  #    pi.low <- pred$fit - qt(.975,df=gam.mod$df.residual) * pred.se
-  #    pi.up  <- pred$fit + qt(.975,df=gam.mod$df.residual) * pred.se
+      pred <- predict.gam(gam.mod, newdata=cars.gam[,-1], se.fit=T)
+      pred.se <- sqrt(pred$se.fit^2+gam.mod$sig2)
+      pi.low <- pred$fit - qt(.975,df=gam.mod$df.residual) * pred.se
+      pi.up  <- pred$fit + qt(.975,df=gam.mod$df.residual) * pred.se
+
