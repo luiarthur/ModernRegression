@@ -102,9 +102,11 @@ which was 95.6\%. The average prediction interval width was \$5589.635. Given th
 price of cars was (5959.5, 44525.0) in this data set, I believe that a prediction interval width
 of of \$5589 is acceptable. 
 
+\newpage
 \subsubsection*{Parameter Estimations:}
 \input{../xtabP.tex}
-subsection*{Smoothing Spline Function:}
+\newpage
+\subsection*{Smoothing Spline Function:}
 \input{../xtabS.tex}
 
 \subsection*{Conclusion:}
