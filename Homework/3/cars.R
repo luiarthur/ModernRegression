@@ -41,18 +41,26 @@ rm(list=ls())
 # GAM: mgcv
   #library(gam)
   library(mgcv)
-  cars.gam <- cars; cars.gam$Miles <- s(cars$Miles)
-  form <- paste(colnames(cars.gam[,-1]),collapse="+")
-  form <- paste("Price ~", form)
-  gam.mod <- gam(as.formula(form), data=cars)
+  temp <- cars[,2]; ctemp <- colnames(cars)[2]
+  cars[,2] <- cars[,3]; colnames(cars)[2] <- colnames(cars)[3]
+  cars[,3] <- temp; colnames(cars)[3] <- ctemp
 
-  #low.mod <- lm(Price~1,data=cars)
+  form <- paste(colnames(cars[,-c(1,2)]),collapse="+")
+  form <- paste("Price ~", "s(cars$Miles)+", form)
+  gam.mod <- gam(as.formula(form), data=cars)
+  sum.gam.mod <- summary(gam.mod)
+
+  #low.mod <- gam(Price~1,data=cars)
   #forw.gam.mod <- step(low.mod,scope=list(lower=low.mod,upper=gam.mod),upper=
   #                     gam.mod,direction="both")
 
   # Code to get P.I.:
-      pred <- predict.gam(gam.mod, newdata=cars.gam[,-1], se.fit=T)
-      pred.se <- sqrt(pred$se.fit^2+gam.mod$sig2)
-      pi.low <- pred$fit - qt(.975,df=gam.mod$df.residual) * pred.se
-      pi.up  <- pred$fit + qt(.975,df=gam.mod$df.residual) * pred.se
+  #testI  <- sample(1:nrow(cars),100,replace=T)
+  #pred   <- predict.gam(gam.mod, newdata=cbind(cars$Miles[testI],cars[testI,-c(1,3)]), se.fit=T)
+
+  X <- data.frame(model.matrix(Price ~ ., data=cars)[,-1])
+  pred    <- predict.gam(gam.mod, newdata=cars[,-1], se.fit=T)
+  pred.se <- sqrt(pred$se.fit^2+gam.mod$sig2)
+  pi.low  <- pred$fit - qt(.975,df=gam.mod$df.residual) * pred.se
+  pi.up   <- pred$fit + qt(.975,df=gam.mod$df.residual) * pred.se
 
