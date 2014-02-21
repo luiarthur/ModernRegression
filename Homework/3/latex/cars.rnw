@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{pgffor}
+\usepackage{amssymb}
+\usepackage{Sweave}
+\usepackage{bm}
+\usepackage{mathtools}
+\def\wl{\par \vspace{\baselineskip}}
+
+\begin{document}
+\title{Stat536 HW3 - Cars Data}
+\author{618518}
+\maketitle
+
+<<design,echo=F>>=
+  source("../cars.R",chdir=T)
+@
+
+\subsection*{Introduction:}
+
+\subsection*{Methods / Models Used:}
+
+\subsection*{Model Justification:}
+
+\subsection*{Results:}
+%\[ \beta = 
+%<<label=tab1,echo=F,results=tex>>=
+%  library(xtable)
+%  x=xtable(b,align=rep("",ncol(b)+1),digits=5)
+%  print(x,floating=FALSE,tabular.environment="pmatrix",hline.after=NULL,
+%        include.rownames=FALSE,include.colnames=FALSE)
+%@
+%\]
+\subsection*{Conclusion:}
+
+\end{document}
