@@ -1,6 +1,6 @@
 \documentclass{article}
-\usepackage{fullpage}
-\usepackage{pgffor}
+%\usepackage{fullpage}
+%\usepackage{pgffor}
 \usepackage{amssymb}
 \usepackage{Sweave}
 \usepackage{bm}
@@ -13,12 +13,25 @@
 \maketitle
 
 <<design,echo=F>>=
-  source("../cars.R",chdir=T)
+  #source("../cars.R",chdir=T)
 @
 
 \subsection*{Introduction:}
+Car dealers stand the risk of not being able to resell and used car (that they bought)
+for a profit. They would like to predict the price they can sell the used cars for
+in order to buy the cars for the right (profitable) price in a trade in. Since it is 
+impossible to know in advanced the willingness of buyers to pay for each car, we will
+model car price with respect to variables provided in the cars data set.
 
 \subsection*{Methods / Models Used:}
+The cars data set contains many variables, including Price, Miles, Manufacturing Year, Cylinder Volume,
+etc (See Description.pdf for the explaination of each variable). The response variable is Price. 
+All of the other variables will be treated as categorical variables, except for Miles and Weight. 
+Moreover, Price and Miles are not linearly correlated. A proper model to use to model Price would then
+be a nonlinear model, specifically, a General Additive Model (GAM):
+\[
+  y_i = \beta_0 + \sum\limits_{p=1}^P f_p(x_{ip}) + \epsilon_i
+\]
 
 \subsection*{Model Justification:}
 

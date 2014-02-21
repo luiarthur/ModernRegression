@@ -57,7 +57,7 @@ rm(list=ls())
   form <- paste("Price ~", "s(cars$Miles)+", form)
 
   gam.mod <- gam(as.formula(form), data=cars)
-  (sum.gam.mod <- summary(gam.mod))
+  sum.gam.mod <- summary(gam.mod)
 
   #low.mod <- gam(Price~1,data=cars)
   #forw.gam.mod <- step(low.mod,scope=list(lower=low.mod,upper=gam.mod),upper=
