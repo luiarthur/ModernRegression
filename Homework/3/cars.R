@@ -69,12 +69,14 @@ rm(list=ls())
   #pred    <- predict.gam(gam.mod, newdata=cars[1:100,-1], se.fit=T, na.action=na.omit, family="gaussian")
   #testI  <- sample(1:nrow(cars),100,replace=T)
 
-  new.cars <- data.frame(cars[,-c(6,9,12:14,17,18,20,21)])
-  X <- data.frame(model.matrix(Price ~ ., data=new.cars))[,-1]
-  pred    <- predict.gam(gam.mod, new.cars[,-1], se.fit=T, na.action=na.omit)
+  #new.cars <- data.frame(cars[,-c(6,9,12:14,17,18,20,21)])
+  #X <- data.frame(model.matrix(Price ~ ., data=new.cars))[,-1]
+  #pred    <- predict.gam(gam.mod, new.cars[,-1], se.fit=T, na.action=na.omit)
   pred    <- predict.gam(gam.mod, se.fit=T, na.action=na.omit)
   pred.se <- sqrt(pred$se.fit^2+gam.mod$sig2)
   pi.low  <- pred$fit - qt(.975,df=gam.mod$df.residual) * pred.se
   pi.up   <- pred$fit + qt(.975,df=gam.mod$df.residual) * pred.se
 
-  coverage <- mean(pi.low < cars$Price & cars$Price < pi.up)
+  coverage  <- mean(pi.low < cars$Price & cars$Price < pi.up)
+  mean.pred <- mean(pred$fit)
+  mean.PI   <- mean(pi.up-pi.low)
