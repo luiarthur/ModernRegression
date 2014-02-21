@@ -19,6 +19,7 @@ rm(list=ls())
   lambda <- mod$lambda
 
   plot.smooth.spline <- function(){
+    pdf("priceWeight.pdf")
     plot(cars$Miles,cars$Price,pch=20,cex=.7,
          xlab="Price",ylab="Miles",
          main="Price Vs. Miles")
@@ -26,6 +27,7 @@ rm(list=ls())
     lines(mod,lwd=3,col='blue')
     legend("topright",legend="Smoothing Spline",
            col="blue",lwd=3)
+    dev.off()       
   }
   
   #plot.smooth.spline()
@@ -82,8 +84,18 @@ rm(list=ls())
   mean.PI   <- mean(pi.up-pi.low)
 
   plot.resid <- function(){
+    pdf("resid.pdf")
     plot(gam.mod$residuals)
+    dev.off()
   }  
   plot.qqnorm <- function(){
+    pdf("qq.pdf")
     qqnorm(gam.mod$residuals)
+    dev.off()
   }
+
+  library(xtable)
+  xtab.p <- xtable(sum.gam.mod$p.table)
+  sink("xtabP.txt"); xtab.p; sink()
+  xtab.s <- xtable(sum.gam.mod$s.table)
+  sink("xtabS.txt"); xtab.s; sink()

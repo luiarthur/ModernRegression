@@ -1,6 +1,6 @@
 \documentclass{article}
-%\usepackage{fullpage}
-%\usepackage{pgffor}
+\usepackage{fullpage}
+\usepackage{pgffor}
 \usepackage{amssymb}
 \usepackage{Sweave}
 \usepackage{bm}
@@ -12,30 +12,92 @@
 \author{618518}
 \maketitle
 
-<<design,echo=F>>=
-  #source("../cars.R",chdir=T)
-@
 
 \subsection*{Introduction:}
-Car dealers stand the risk of not being able to resell and used car (that they bought)
-for a profit. They would like to predict the price they can sell the used cars for
-in order to buy the cars for the right (profitable) price in a trade in. Since it is 
-impossible to know in advanced the willingness of buyers to pay for each car, we will
-model car price with respect to variables provided in the cars data set.
+When car dealers buy a used car, they stand the risk of not being able to resell the used car
+for a profit. To increase the probability of selling their used cars form a profit, car dealers
+would like to predict the price they can sell the used cars for.
+Since it is impossible to know in advanced the willingness of buyers to pay for each (unique) car, 
+we will model car selling price with respect to variables (features of cars) provided in the cars 
+data set.
 
 \subsection*{Methods / Models Used:}
-The cars data set contains many variables, including Price, Miles, Manufacturing Year, Cylinder Volume,
-etc (See Description.pdf for the explaination of each variable). The response variable is Price. 
-All of the other variables will be treated as categorical variables, except for Miles and Weight. 
-Moreover, Price and Miles are not linearly correlated. A proper model to use to model Price would then
+The response variable in the cars data set is Price (quantitative). Miles and Weight are also 
+quantitative variables. All other variables will be considered as categorical variables.
+Hence, we have multiple variables, and we need to use multiple regression. However, the a plot
+of Price against Miles reveals that the two variables are not linearly correlated (See Fig. 1). 
+So, we cannot use multiple linear regression. A proper model to use in this case would then
 be a nonlinear model, specifically, a General Additive Model (GAM):
 \[
-  y_i = \beta_0 + \sum\limits_{p=1}^P f_p(x_{ip}) + \epsilon_i
+  y_i = \beta_0 + \sum\limits_{p=1}^P f_p(x_{ip}) + \epsilon_i,
 \]
+where $ f_p(x_{ip}) $ is some function for the $p^{th}$ variable.
+In this case, $y$, our reponse variable, is Price. Our covariates make up $x$. And 
+$\epsilon \sim~N(0,\sigma^2)$. \\
+\begin{center}
+\begin{figure}
+  \includegraphics{../priceWeight.pdf}
+  \caption{Fig. 1}
+\end{figure}
+\end{center}
 
 \subsection*{Model Justification:}
+The advantage of using a GAM for this problem is that it can model non-linear relationships
+that a linear regression will miss, and potentially give better predictions while maintaining 
+interpretability. Note that while the GAM is an restricted to be additive, like the linear model,
+it is much more flexibile than the linear model because of its ability to model nonlinear relationships.\\
+\wl\noindent
+A spline would suitably model the nonlinear relationship between Miles and Price. I chose to use a 
+smoothing spline over b-splines or a natural spline as (1) I can get a smooth curve which has good
+tail behavior, and (2) I don't need to determine the number of knots to create the spline. 
+A natural approach to getting a smoothing spline is to find the function $g$ that minimizes:
+\[
+  %\sum\limits_{i=1}^n (y_i-g(x_i))^2 + \lambda\int g^{\prime\prime}(t)^2dt
+  \sum\limits_{i=1}^n (y_i-g(x_i))^2 + \lambda\int g''(t)^2dt \dots (eq.1)
+\]
+where $\lambda$ is a nonnegative tuning parameter. The function g that minimizes
+(eq.1) is known as a smoothing spline. The first term in (eq.1) is a loss function,
+which encourages $g$ to fit the data well. The second term is a penalty term that 
+penalizes variability in $g$. $g''(t)^2$ is a convenient measure of the roughness of
+$g#$. In essence, if $g$ is very smooth, then $g'(t)$ will be close to constant and 
+$\int g''(t)^2dt$ will be small. Conversely, if g is jumpy, then $g'(t)$ varies greatly,
+and $\int g''(t)^2dt$ will be large. So the larger $\lambda$ is, the smoother $g$ will be.
 
 \subsection*{Results:}
+A smoothing spline was applied to Miles. No other functions were applied to other variables.
+After some variable selection, the GAM obtained contained:\\
+\bullet s(Miles)\\
+\bullet Manufacturing Year\\
+\bullet Fuel Type\\
+\bullet Horse Power\\
+\bullet Automatic\\
+\bullet Cylinder Capcity\\
+\bullet Manufacturing Gaurantee
+\bullet Weight\\
+\bullet Automatic Airconditioning\\
+\bullet Powered Windows.\\
+
+From Fig.2, we can see that the residuals are approximately evenly spread out and centered about 0. 
+A Q-Q plot (Fig. 3) helps us see that the residuals are not strictly normally distributed. There may be some 
+outlieres. Nevertheless, those points were not identified. 
+
+\begin{center}
+\begin{figure}
+  \includegraphics{../resid.pdf}
+  \caption{Fig. 2}
+\end{figure}
+\end{center}
+
+\begin{center}
+\begin{figure}
+  \includegraphics{../qq.pdf}
+  \caption{Fig. 3}
+\end{figure}
+\end{center}
+
+
+
+
 %\[ \beta = 
 %<<label=tab1,echo=F,results=tex>>=
 %  library(xtable)
