@@ -1,6 +1,6 @@
 rm(list=ls())
 soil <- read.csv("soil.csv")[,-1]
-plot(soil,pch=20,col='brown',main="SWC Vs. CWSI")
+#plot(soil,pch=20,col='brown',main="SWC Vs. CWSI")
 attach(soil)
 
 rmvn <- function(n=1,mu=0,Sigma=1){
