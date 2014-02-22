@@ -8,6 +8,8 @@ rmvn <- function(n=1,mu=0,Sigma=1){
   draws
 }
 
+#install.packages("geoR")
+#install.packages("LatticeKrig")
 library(geoR)
 library(LatticeKrig)      #Load rdist function
 # small nu  => crooked, jagged line
