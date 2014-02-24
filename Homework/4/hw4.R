@@ -24,6 +24,8 @@ plot.GP <- function(N=nrow(soil),nu=.5,K=100,s2.start.val=1,phi.start.val=1){
   mu <- gp.fit$beta
   tau2 <- gp.fit$tausq
 
+  print(c(s2,mu,tau2))
+  
   pred.seq <- seq(min(CWSI),max(CWSI),length=K)
   D <- rdist(c(pred.seq,CWSI))
   V <- s2*Matern(D,alpha=phi,nu=nu) ##V = Sigma_Y
@@ -42,6 +44,8 @@ plot.GP <- function(N=nrow(soil),nu=.5,K=100,s2.start.val=1,phi.start.val=1){
   points(CWSI,SWC,pch=19,cex=0.5)
   lines(pred.seq,lower,col="blue")
   lines(pred.seq,upper,col="blue")
+  legend("topright",legend=c("Prediction Estimate","95% Confidence Bands"),
+         col= c("blue","red"),lwd=2)
   
   se <- sqrt(1 / (sum(CWSI^2) / V))
   se
