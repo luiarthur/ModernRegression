@@ -14,7 +14,7 @@ library(LatticeKrig)      #Load rdist function
 # small nu  => crooked, jagged line
 # small phi => small seasonal effects
 
-GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=1,plot=F){
+GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=data[1,],plot=F){
   N <- nrow(data)
   SWC <- data$SWC
   CWSI <- data$CWSI
@@ -28,7 +28,7 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=1,plot=F
   tau2 <- gp.fit$tausq
 
   #pred.seq <- seq(min(CWSI),max(CWSI),length=K)
-  pred.seq <- c(seq(min(CWSI),max(CWSI),length=K-1),pred)
+  pred.seq <- c(seq(min(CWSI),max(CWSI),length=K-1),pred[1])
   D <- rdist(c(pred.seq,CWSI))
   V <- s2*Matern(D,alpha=phi,nu=nu) ##V = Sigma_Y
   EV <- mu + V[1:K,K+(1:N)] %*% solve(V[K+(1:N),K+(1:N)]+tau2*diag(N)) %*% (SWC-mu)
@@ -38,14 +38,16 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=1,plot=F
   upper <- qnorm(0.975,mean=EV,sd=sqrt(cond.Var))
   lower <- qnorm(0.025,mean=EV,sd=sqrt(cond.Var))
 
-  plot(pred.seq[-K],EV[-K],type="l",lwd=3,xlab="CWSI",ylab="SWC", #####
-       xlim=range(CWSI), ylim=c(20,29),col="red",
-       main=paste("GP ",expression(nu), "=",round(nu,3)))
-  points(CWSI[-K],SWC[-K],pch=19,cex=0.5)
-  lines(pred.seq[-K],lower[-K],col="blue")
-  lines(pred.seq[-K],upper[-K],col="blue")
-  legend("topright",legend=c("Prediction Estimate","95% Confidence Bands"),
-         col= c("red","blue"),lwd=2)
+  if (plot){
+    plot(pred.seq[-K],EV[-K],type="l",lwd=3,xlab="CWSI",ylab="SWC", #####
+         xlim=range(CWSI), ylim=c(20,29),col="red",
+         main=paste("GP ",expression(nu), "=",round(nu,3)))
+    points(CWSI[-K],SWC[-K],pch=19,cex=0.5)
+    lines(pred.seq[-K],lower[-K],col="blue")
+    lines(pred.seq[-K],upper[-K],col="blue")
+    legend("topright",legend=c("Prediction Estimate","95% Confidence Bands"),
+           col= c("red","blue"),lwd=2)
+  }
   
   D <- rdist(CWSI)
   V <- s2*Matern(D,alpha=phi,nu=nu) + tau2*diag(N)
@@ -54,12 +56,12 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=1,plot=F
   b.var <- solve(t(X) %*% solve(V) %*% X)
   b <- b.var %*% t(X) %*% solve(V) %*% Y
  
-  pred.in <- ifelse(lower[K] < EV[K] & EV[K] < upper[K],T,F)
+  pred.in <- ifelse(lower[K] < pred[2] & pred[2] < upper[K],T,F)
 
   list("beta"=b, "b.se"=sqrt(b.var),"pred.in"=pred.in)
 }
 
-CV <- function(data=soil,reg=2){
+CV <- function(reg=2,data=soil){
 
   library(doMC)
   library(foreach)
@@ -67,8 +69,8 @@ CV <- function(data=soil,reg=2){
 
   n <- nrow(data)
 
-  leave.1.out <- function(i,data=soil){
-    estimates <- GP(data[-i,],pred=data[i],plot=F)
+  leave.1.out <- function(i){
+    estimates <- GP(data[-i,],pred=data[i,],plot=F)
     estimates$pred.in
   }
 
@@ -76,7 +78,12 @@ CV <- function(data=soil,reg=2){
   coverage
 }
 
+cv <- CV(32)
+n <- length(cv)
+p <- mean(cv)
+coverage.CI <- p + c(-1,1)*1.96*sqrt((p*(1-p)/n))
+coverage <- cbind(p,t(coverage.CI))
+colnames(coverage) <- c("Est.Coverage","CI.lo","CI.hi")
 
-coverage <- CV()
 est <- GP(nu=2,plot=T)
 
