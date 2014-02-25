@@ -15,7 +15,8 @@ library(LatticeKrig)      #Load rdist function
 # small phi => small seasonal effects
 
                                     # var(Y)       #range(X)   
-GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=data[1,],plot=F){
+#GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=data[1,],plot=F){
+GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,1]),phi.start.val=.001,pred=data[1,],plot=F){
   N <- nrow(data)
   SWC <- data$SWC
   CWSI <- data$CWSI

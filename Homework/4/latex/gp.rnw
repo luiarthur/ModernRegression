@@ -20,6 +20,10 @@
 \end{center}
 
 \subsection*{Introduction:}
+We are interested in predicting Salt Water Content (SWC) using Crop Water Stress
+Index (CWSI). SWC is a measure of water presence in soil, and CWSI is a measure of
+how severely water needs to be added (1 for severe, 0 for not severe - mearning 
+crops are well hydrated).
 
 \subsection*{Methods / Models Used:}
 
