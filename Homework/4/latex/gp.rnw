@@ -1,0 +1,34 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{pgffor}
+\usepackage{amssymb}
+\usepackage{Sweave}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage[UKenglish]{isodate} % for: \today
+\cleanlookdateon                % for: \today
+
+\def\wl{\par \vspace{\baselineskip}}
+
+\begin{document}
+
+% my title:
+\begin{center}
+  \section*{\textbf{Stat536 HW4 - Gaussian Process on Agriculture Data}} 
+  \subsection*{\textbf{Arthur Lui}} 
+  \subsection*{\noindent\today} 
+\end{center}
+
+\subsection*{Introduction:}
+
+\subsection*{Methods / Models Used:}
+
+\subsection*{Model Justification:}
+
+\subsection*{Results:}
+
+\subsection*{Parameter Estimations:}
+
+\subsection*{Conclusion:}
+
+\end{document}

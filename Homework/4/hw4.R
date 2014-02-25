@@ -87,5 +87,16 @@ coverage <- cbind(p,t(coverage.CI))
 colnames(coverage) <- c("Est.Coverage","CI.lo","CI.hi")
 
 est <- GP(nu=2,plot=T)
+
+plot.resid <- function(){
+  par(mfrow=c(2,1))
+  resids <- est$gp.fit$model.components$residuals
+  #plot(resids,pch=20); abline(h=0)
+  qqnorm(resids,pch=20)
+  hist(resids)
+  par(mfrow=c(1,1))
+}
+
+#plot.resid()
 #est$gp.fit$beta
 

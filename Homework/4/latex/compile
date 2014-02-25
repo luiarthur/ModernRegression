@@ -4,4 +4,4 @@
 Sweave("gp.rnw")
 system("pdflatex gp.tex")
 system("rm *.tex *.log *.aux")
-system("chrome cars.pdf &")
+system("firefox gp.pdf &")
