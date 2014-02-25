@@ -14,6 +14,7 @@ library(LatticeKrig)      #Load rdist function
 # small nu  => crooked, jagged line
 # small phi => small seasonal effects
 
+                                    # var(Y)       #range(X)   
 GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=data[1,],plot=F){
   N <- nrow(data)
   SWC <- data$SWC
@@ -49,16 +50,16 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=data[1,]
            col= c("red","blue"),lwd=2)
   }
   
-  D <- rdist(CWSI)
-  V <- s2*Matern(D,alpha=phi,nu=nu) + tau2*diag(N)
-  X <- cbind(rep(1,N))
-  Y <- cbind(SWC)
-  b.var <- solve(t(X) %*% solve(V) %*% X)
-  b <- b.var %*% t(X) %*% solve(V) %*% Y
+  #D <- rdist(CWSI)
+  #V <- s2*Matern(D,alpha=phi,nu=nu) + tau2*diag(N)
+  #X <- cbind(rep(1,N))
+  #Y <- cbind(SWC)
+  #b.var <- solve(t(X) %*% solve(V) %*% X)
+  #b <- b.var %*% t(X) %*% solve(V) %*% Y
  
   pred.in <- ifelse(lower[K] < pred[2] & pred[2] < upper[K],T,F)
 
-  list("beta"=b, "b.se"=sqrt(b.var),"pred.in"=pred.in)
+  list("pred.in"=pred.in,"gp.fit"=gp.fit)
 }
 
 CV <- function(reg=2,data=soil){
@@ -81,9 +82,10 @@ CV <- function(reg=2,data=soil){
 cv <- CV(16)
 n <- length(cv)
 p <- mean(cv)
-coverage.CI <- p + c(-1,1)*1.96*sqrt((p*(1-p)/n))
+coverage.CI <- p + c(1,-1)*qnorm(.975)*sqrt((p*(1-p)/n))
 coverage <- cbind(p,t(coverage.CI))
 colnames(coverage) <- c("Est.Coverage","CI.lo","CI.hi")
 
 est <- GP(nu=2,plot=T)
+#est$gp.fit$beta
 
