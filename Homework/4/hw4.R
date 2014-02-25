@@ -78,7 +78,7 @@ CV <- function(reg=2,data=soil){
   coverage
 }
 
-cv <- CV(32)
+cv <- CV(16)
 n <- length(cv)
 p <- mean(cv)
 coverage.CI <- p + c(-1,1)*1.96*sqrt((p*(1-p)/n))
