@@ -114,7 +114,7 @@ In other words, for any set of $t_1,\dots,t_N \in T,~\bm{Y} =
 
 \subsection*{Results:}
 
-\subsubsection*{Parameter Estimats:}
+\subsubsection*{Parameter Estimates:}
 % tau2, s2, phi
 The point estimates obtained using maximum likelihood for the covariance
 function are:
