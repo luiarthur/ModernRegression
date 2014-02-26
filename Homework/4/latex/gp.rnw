@@ -51,7 +51,7 @@ modelling nonlinear data is the Gaussian Process.
 \begin{figure}
 \begin{center}
 <<fig=T,echo=F>>=
-  plot(soil,main="SWC vs. CWSI")
+  plot(soil,main="SWC vs. CWSI",pch=20,col="brown")
 @  
 \end{center}
 \caption{Scatter Plot of SWC vs. CWSI}
