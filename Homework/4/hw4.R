@@ -16,7 +16,7 @@ library(LatticeKrig)      #Load rdist function
 
                                     # var(Y)       #range(X)   
 #GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=data[1,],plot=F){
-GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,2]),phi.start.val=.001,pred=data[1,],plot=F){
+GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,2]),phi.start.val=.001,pred=data[1,],plot=F,export.plot=F){
   N <- nrow(data)
   SWC <- data$SWC
   CWSI <- data$CWSI
@@ -41,8 +41,8 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,2]),phi.start.val=
   upper <- qnorm(0.975,mean=EV,sd=sqrt(cond.Var))
   lower <- qnorm(0.025,mean=EV,sd=sqrt(cond.Var))
 
-  pred.plot <- NULL
   if (plot) {
+    if (export.plot) pdf("predict.pdf")
     plot(pred.seq[-K],EV[-K],type="l",lwd=3,xlab="CWSI",ylab="SWC", #####
          #xlim=range(CWSI), ylim=c(20,29),col="red",
          xlim=range(pred.seq), ylim=c(min(lower),max(upper)),col="red",
@@ -51,9 +51,9 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,2]),phi.start.val=
     points(CWSI[-K],SWC[-K],pch=19,cex=0.5)
     lines(pred.seq[-K],lower[-K],col="blue")
     lines(pred.seq[-K],upper[-K],col="blue")
-    legend("topright",legend=c("Prediction Estimate","95% Confidence Bands"),
+    legend("topright",legend=c("Prediction Estimate","95% Prediction Bands"),
            col= c("red","blue"),lwd=2)
-    pred.plot <- recordPlot()
+    if (export.plot) dev.off()
   }  
   #D <- rdist(CWSI)
   #V <- s2*Matern(D,alpha=phi,nu=nu) + tau2*diag(N)
@@ -64,11 +64,8 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,2]),phi.start.val=
  
   pred.in <- ifelse(lower[K] < pred[2] & pred[2] < upper[K],T,F)
 
-  if (plot) {
-    list("pred.in"=pred.in,"gp.fit"=gp.fit,"plot"=pred.plot)
-  } else {
-    list("pred.in"=pred.in,"gp.fit"=gp.fit)
-  }
+  list("pred.in"=pred.in,"gp.fit"=gp.fit,"pred"=EV[K],
+       "up"=upper[-K],"lo"=lower[-K],"ev"=EV[-K])
 }
 
 CV <- function(reg=2,data=soil){
@@ -93,20 +90,32 @@ n <- length(cv)
 p <- mean(cv)
 #coverage.CI <- p + c(-1,1)*qnorm(.975)*sqrt((p*(1-p)/n)) # same as below
 coverage.CI <- qnorm(c(.025,.975),p,sqrt((p*(1-p)/n)))
+coverage.CI[2] <- min(1,coverage.CI[2])
 coverage <- cbind(p,t(coverage.CI))
 colnames(coverage) <- c("Est.Coverage","CI.lo","CI.hi")
 
-est <- GP(nu=2,plot=T)
+est <- GP(nu=2,plot=T,export.plot=T)
+beta <- est$gp.fit$beta
+se <- sqrt(est$gp.fit$beta.var)
+beta.CI <- qnorm(c(.025,.975),beta,se)
 
 plot.resid <- function(){
   par(mfrow=c(2,1))
   resids <- est$gp.fit$model.components$residuals
   #plot(resids,pch=20); abline(h=0)
   qqnorm(resids,pch=20)
-  hist(resids)
+  hist(resids,col='green')
   par(mfrow=c(1,1))
 }
 
-#plot.resid()
-#est$gp.fit$beta
+widths <- est$up - est$lo
+min.widths <- min(widths)
+max.widths <- max(widths)
+which.min.widths <- which.min(widths) / 100
+which.max.widths <- which.max(widths) / 100
+min.ev <- est$ev[which.min(widths)]
+max.ev <- est$ev[which.max(widths)]
 
+set <- seq(1,100,length=20) 
+pred.table <- cbind(set/100,est$ev[set],est$lo[set],est$up[set])
+colnames(pred.table) <- c("CWSI","Est.SWC","PI.Lo","PI.Up")
