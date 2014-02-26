@@ -19,15 +19,48 @@
   \subsection*{\noindent\today} 
 \end{center}
 
-\subsection*{Introduction:}
-We are interested in predicting Salt Water Content (SWC) using Crop Water Stress
-Index (CWSI). SWC is a measure of water presence in soil, and CWSI is a measure of
-how severely water needs to be added (1 for severe, 0 for not severe - mearning 
-crops are well hydrated).
+<<design,echo=F,results=hide>>=
+  source("../hw4.R",chdir=T)
+@
 
-\subsection*{Methods / Models Used:}
+\subsection*{Introduction:} % Problem Statement and Understanding (Done)
+We are interested in predicting Soil Water Content (SWC) using Crop Water Stress
+Index (CWSI). SWC is a measure of water presence in soil, and CWSI is a measure
+of how severely water needs to be added (1 for severe, 0 for not severe -
+meaning crops are well hydrated). The motivation behind measuring CWSI and SWC
+is that they are good indicators of when and how much water should be supplied
+to crops. This is valuable information to farmers especially during a drought
+when water is even more scarce and the price of water increases drastically.
+While measuring CWSI is easy and relatively inexpensive with the aid of remote
+sensing devices, measuring SWC is neither easy nor cheap. Consequently, we are
+interested in exploring and modelling the relationship between SWC and CWSI so
+that we can accurately predict SWC given CWSI. Doing so will help farmers avoid
+the costs of measuring SWC and aid them in cutting irrigation costs. Using data
+consisting of 44 observations of SWC and their corresponding CWSI's from Dr.
+Heaton, we will model the relationship between SWC and CWSI. An important
+consideration in this study is that the relationship between SWC and CWSI is
+highly nonlinear. This suggests that the modelling methods chosen should
+be robust to nonlinearity.
 
-\subsection*{Model Justification:}
+
+% Methods / Models / Justification:
+\subsection*{Methods / Models Used: {\huge Need to write this more!!!} }
+A scatter plot of our data reveals the apparent nonlinearity (Figure 1). An 
+alternative to the linear model should be used. A suitable model for modelling
+nonlinear data is the Gaussian Process. 
+
+\begin{figure}
+\begin{center}
+<<fig=T,echo=F,label=fig1>>=
+  plot(soil,main="SWC vs. CWSI")
+@  
+\end{center}
+\caption{Scatter Plot of SWC vs. CWSI}
+\end{figure}
+
+% Describe the Gaussian Process and assumptions
+% Explain Why the GP is used, how it is appropriate, how it solves the problem
+% Are assumptions jusfified? (residuals)
 
 \subsection*{Results:}
 

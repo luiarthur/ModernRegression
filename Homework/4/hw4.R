@@ -16,7 +16,7 @@ library(LatticeKrig)      #Load rdist function
 
                                     # var(Y)       #range(X)   
 #GP <- function(data=soil,nu=2,K=101,s2.start.val=1,phi.start.val=1,pred=data[1,],plot=F){
-GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,1]),phi.start.val=.001,pred=data[1,],plot=F){
+GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,2]),phi.start.val=.001,pred=data[1,],plot=F){
   N <- nrow(data)
   SWC <- data$SWC
   CWSI <- data$CWSI
@@ -30,7 +30,8 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,1]),phi.start.val=
   tau2 <- gp.fit$tausq
 
   #pred.seq <- seq(min(CWSI),max(CWSI),length=K)
-  pred.seq <- c(seq(min(CWSI),max(CWSI),length=K-1),pred[1])
+  #pred.seq <- c(seq(min(CWSI),max(CWSI),length=K-1),pred[1])
+  pred.seq <- c(seq(0,1,length=K-1),pred[1])
   D <- rdist(c(pred.seq,CWSI))
   V <- s2*Matern(D,alpha=phi,nu=nu) ##V = Sigma_Y
   EV <- mu + V[1:K,K+(1:N)] %*% solve(V[K+(1:N),K+(1:N)]+tau2*diag(N)) %*% (SWC-mu)
@@ -40,17 +41,20 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,1]),phi.start.val=
   upper <- qnorm(0.975,mean=EV,sd=sqrt(cond.Var))
   lower <- qnorm(0.025,mean=EV,sd=sqrt(cond.Var))
 
-  if (plot){
+  pred.plot <- NULL
+  if (plot) {
     plot(pred.seq[-K],EV[-K],type="l",lwd=3,xlab="CWSI",ylab="SWC", #####
-         xlim=range(CWSI), ylim=c(20,29),col="red",
-         main=paste("GP ",expression(nu), "=",round(nu,3)))
+         #xlim=range(CWSI), ylim=c(20,29),col="red",
+         xlim=range(pred.seq), ylim=c(min(lower),max(upper)),col="red",
+         main=paste("Gaussian Process Predictions, ",
+                    expression(nu), "=",round(nu,3)))
     points(CWSI[-K],SWC[-K],pch=19,cex=0.5)
     lines(pred.seq[-K],lower[-K],col="blue")
     lines(pred.seq[-K],upper[-K],col="blue")
     legend("topright",legend=c("Prediction Estimate","95% Confidence Bands"),
            col= c("red","blue"),lwd=2)
-  }
-  
+    pred.plot <- recordPlot()
+  }  
   #D <- rdist(CWSI)
   #V <- s2*Matern(D,alpha=phi,nu=nu) + tau2*diag(N)
   #X <- cbind(rep(1,N))
@@ -60,7 +64,11 @@ GP <- function(data=soil,nu=2,K=101,s2.start.val=.5*var(soil[,1]),phi.start.val=
  
   pred.in <- ifelse(lower[K] < pred[2] & pred[2] < upper[K],T,F)
 
-  list("pred.in"=pred.in,"gp.fit"=gp.fit)
+  if (plot) {
+    list("pred.in"=pred.in,"gp.fit"=gp.fit,"plot"=pred.plot)
+  } else {
+    list("pred.in"=pred.in,"gp.fit"=gp.fit)
+  }
 }
 
 CV <- function(reg=2,data=soil){
@@ -83,7 +91,8 @@ CV <- function(reg=2,data=soil){
 cv <- CV(16)
 n <- length(cv)
 p <- mean(cv)
-coverage.CI <- p + c(1,-1)*qnorm(.975)*sqrt((p*(1-p)/n))
+#coverage.CI <- p + c(-1,1)*qnorm(.975)*sqrt((p*(1-p)/n)) # same as below
+coverage.CI <- qnorm(c(.025,.975),p,sqrt((p*(1-p)/n)))
 coverage <- cbind(p,t(coverage.CI))
 colnames(coverage) <- c("Est.Coverage","CI.lo","CI.hi")
 

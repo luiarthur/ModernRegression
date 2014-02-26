@@ -3,5 +3,5 @@
 #system("cd ../; R CMD BATCH cars.R; cd latex")
 Sweave("gp.rnw")
 system("pdflatex gp.tex")
-system("rm *.tex *.log *.aux")
+system("rm *.tex *.log *.aux gp-*.pdf")
 system("firefox gp.pdf &")
