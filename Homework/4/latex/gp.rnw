@@ -44,7 +44,7 @@ be robust to nonlinearity.
 
 
 % Methods / Models / Justification-talk about strengths:
-\subsection*{Methods / Models Used: {\huge Question: What about 2 covariates???} }
+\subsection*{Methods / Models Used:}%{\huge Question: What about 2 covariates???} }
 A scatter plot of our data reveals the apparent nonlinearity (\textbf{Figure
 1}).  An alternative to the linear model should be used. A suitable model for
 modelling nonlinear data is the Gaussian Process. 
@@ -60,7 +60,7 @@ modelling nonlinear data is the Gaussian Process.
 % Describe the Gaussian Process and assumptions
 \subsubsection*{Description of The Gaussian Process:}
 A Gaussian Process (GP) is a stochastic process where any finite collection
-observed random variables follow a multibariate normal distribution.
+observed random variables follow a multivariate normal distribution.
 In other words, for any set of $t_1,\dots,t_N \in T,~\bm{Y} =
 (Y(t_1),\dots,Y(t_N))^T \sim \mathcal{N}(\bm\mu,\bm\Sigma_Y)$.
 
@@ -89,14 +89,14 @@ In other words, for any set of $t_1,\dots,t_N \in T,~\bm{Y} =
         $\nu$: smoothness parameter. As $\nu$ increases, smoothness increases.\\
         $K$: effective range. distance where correlation decays to 0.05. \\
         We can estimate the unknown parameters $\mu, \sigma^2, \nu, \phi,
-        \tau^2$ (using maximum likelihood or bayes).
+        \tau^2$ (using maximum likelihood or Bayes).
   \wl\noindent
   This is a fascinating result that reduces computation significantly. Making
   use of the properties of the conditional distribution of multivariate normals
   distributions, one can easily can predictions and prediction intervals (see
   Rencher \& Schaalje, Theorem 4.4d, 2008). 
   
-  %Using the results the conditional expectation and contitional variance (see
+  %Using the results the conditional expectation and conditional variance (see
   %Rencher \& Schaalje, Theorem. 4.4d, 2008) we get,
 
   %\[ \bm Y^* | \bm Y \sim \mathcal{N}(\bm\mu_{Y^*|Y},\bm\Sigma_{Y^*|Y}) \]
@@ -147,7 +147,7 @@ coverage was determined to be \Sexpr{round(coverage[1],3)}
 \end{figure}
 
 \subsubsection*{Assessment of Model Assumptions:}
-% Are assumptions jusfified? (residuals)
+% Are assumptions justified? (residuals)
 An assumption of the GP model is that the errors are Normally distributed. The
 percentile-percentile plot (Q-Q plot) appears to be linear. This indicates that
 the residuals are normal. A histogram of the residuals also shows that the
