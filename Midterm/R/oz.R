@@ -26,13 +26,9 @@ plot.CMAQ <- function(main="") {
 
 #GP: #####################################################################
 GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
-               nu=2,init=c(c(var(o3$Ozone),.001)),find.X1.k=20){
+               nu=2,init=c(c(var(o3$Ozone),.001)),find.X1.k=10){
 
   find.X1 <- function(DD,k=find.X1.k) {
-
-    library(foreach)
-    library(doMC)
-    registerDoMC(16)
 
     find.smallest.i <- function(one.row) {
       Ind <- NULL
@@ -55,14 +51,20 @@ GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
       cmaq$CMAQ[ind] # method 2
     }
 
+    library(foreach)
+    library(doMC)
+    registerDoMC(10)
     X1 <- foreach(i=1:nrow(DD),.combine=rbind) %dopar% find.x1(DD[i,])
+
+    #do.one <- function(y) t(find.x1(y,find.X1.k))
+    #X1 <- apply(DD,1,find.x1)
     X1
   }  
   
   N <- nrow(o3)
   coord <- cbind(o3$Lo,o3$La)
   Y <- o3$Ozone
-  D.X1 <- rdist(o3[,5:4],cmaq[,1:2]) # 800 x 66960 
+  D.X1 <- rdist(o3[,5:4],cmaq[,1:2])
   X1 <- find.X1(D.X1)
   X <- cbind(1,X1)
 
@@ -80,7 +82,7 @@ GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
 
   # Predictions:
   K <- nrow(pred)
-  D <- rdist(rbind(pred,coord))
+  D <- rdist(rbind(as.matrix(pred),as.matrix(coord)))
 
   DD <- rdist(pred,cmaq[,1:2])
   x1 <- find.X1(DD)
@@ -104,8 +106,8 @@ center <- result$pred
 upper  <- result$upper
 lower  <- result$lower
 
-plot.pred <- function(pred,main="") {
-  quilt.plot(predL$X,predL$Y,pred,main=main)
+plot.pred <- function(pred,main="",predl=predL) {
+  quilt.plot(predl$X,predl$Y,pred,main=main)
   map('state',add=T)
 }
 
@@ -126,15 +128,43 @@ par(mfrow=c(1,1))
 ##################################################
 
 # Need: 
-#   1) Residuals
-#   2) Coverage
+#   1) Residuals: Done
+#   2) Coverage: Run
 #   3) Interpret
 
 # 1) Residuals:
-resids <- result$gp.fit$model.components$residuals
-plot(resids,pch=20)
-hist(resids,col='gold',30,freq=F) # Looks like a Cauchy / Laplace
-curve(dnorm(x,0,2.8),from=-20,20,col='red',add=T,lwd=3)
-curve(dcauchy(x,0,2.2),from=-20,20,col='blue',add=T,lwd=3)
-qqnorm(resids,col='gold')  # Looks reasonable
+   resids <- result$gp.fit$model.components$residuals
 
+   #1:
+   plot(resids,pch=20,main"Residuals")
+
+   #2: # Looks like a Cauchy / Laplace
+   hist(resids,col='gold',30,freq=F,main="Histogram of Residuals",xlab="Residuals")
+   curve(dnorm(x,0,2.8),from=-20,20,col='red',add=T,lwd=3)
+   curve(dcauchy(x,0,2.2),from=-20,20,col='blue',add=T,lwd=3)
+   legend("topleft",legend=c("Normal(0, 2.8)","Cauchy(0, 2.2)"),
+          col=c("red","blue"),lwd=3)
+
+   #3:
+   qqnorm(resids,col='gold')  # Looks reasonable
+
+
+# 2) Coverage:
+  get.coverage <- function(test.size=50) {
+    testI <- sample(1:nrow(O3),test.size)
+    cv.1  <- GP(o3=O3[-testI,],pred=O3[testI,5:4],find.X1.k=10)
+    cv.lo <- cv.1$lower
+    cv.up <- cv.1$upper
+    y.in.pi <- ifelse(cv.lo<=O3[testI,6] & O3[testI,6]<=cv.up,T,F) 
+    p <- mean(y.in.pi); n <- length(y.in.pi)
+    cov.ci <- qnorm(c(.025,.975),p,sqrt(p*(1-p)/n))
+
+    list("coverage"=p,"ci"=cov.ci,"testI"=testI,"gp"=cv.1)
+  }
+  coverage <- get.coverage(100)
+  #plot.pred(coverage$gp$pred,predl=predL[coverage$testI,])
+  #coverage[1:2]
+
+
+#3) Interpret:
+  result$gp.fit$beta
