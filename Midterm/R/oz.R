@@ -6,6 +6,7 @@ rm(list=ls())
 library(LatticeKrig)
 library(geoR)
 library(maps)
+library(xtable)
 
 CMAQ  <- read.csv("../Data/CMAQ.csv")       # 66960 x 4
 O3    <- read.csv("../Data/Ozone.csv")      #   800 x 6
@@ -187,18 +188,32 @@ plot.all <- function(){
 
     list("coverage"=p,"ci"=cov.ci,"testI"=testI,"gp"=cv.1)
   }
-  coverage <- get.coverage(100)
 
-  #test:
-    #coverages <- cbind(1:10)
-    #f <- function(x) get.coverage(400)$coverage
-    #coverages <- apply(coverages,1,f)
-    #plot.pred(coverage$gp$pred,predl=predL[coverage$testI,])
-    #coverage[1:2]
-    library(foreach)
-    library(doMC)
-    registerDoMC(10)
-    coverages <- foreach(i=1:10) %dopar% get.coverage(100)
+  library(foreach)
+  library(doMC)
+  registerDoMC(12)
+  coverages <- foreach(i=1:10,.errorhandling="remove") %dopar% get.coverage(400)
+
+  covs <- sapply(coverages,function(x) x$cov)
+  cov.est <- mean(covs)
+  cov.ci  <- qnorm(c(.025,.975),cov.est,sd(covs))
+
+  #mean.ci <- apply(sapply(coverages,function(x) x$ci),1,mean)
+
+  y <- sapply(coverages,function(x) O3[x$testI,6])
+  y.hat <- sapply(coverages,function(x) x$gp$pred)
+  mses <- apply(y-y.hat,2,function(x) sum(x^2))
+  mse.est <- mean(mses)
+  mse.ci <- qnorm(c(.025,.975),mse.est,sd(mses))
+
+  options("scipen"=10,"digits"=3)
+  cov.and.mse <- rbind(c(cov.est,cov.ci),c(mse.est,mse.ci))
+  colnames(cov.and.mse) <- c("Estimate","CI.Lower","CI.Upper")
+  rownames(cov.and.mse) <- c("Coverage","MSE")
+  options("scipen"=5,"digits"=3)
+
+  xtab.cov.mse <- xtable(cov.and.mse,digits=c(1,3,3,3))
+  sink("../latex/xtabs/cov.mse.tex"); xtab.cov.mse; sink()
 
 #3) Interpret:
   result$gp.fit$beta
