@@ -173,8 +173,9 @@ plot.all <- function(){
           col=c("red","blue"),lwd=3)
 
    #3:
-   qqnorm(resids,col='gold')  # Looks reasonable
-
+   pdf("../latex/raw/qqnorm.pdf")
+     qqnorm(resids,col='gold')  # Looks reasonable
+   dev.off()
 
 # 2) Coverage:
   get.coverage <- function(test.size=50) {
