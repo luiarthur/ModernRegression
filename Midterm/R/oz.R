@@ -1,10 +1,9 @@
+# 3-4 minutes run-time:
+
 rm(list=ls())
 library(LatticeKrig)
 library(geoR)
 library(maps)
-library(foreach)
-library(doMC)
-registerDoMC(16)
 
 cmaq  <- read.csv("../Data/CMAQ.csv")       # 66960 x 4
 o3    <- read.csv("../Data/Ozone.csv")      #   800 x 6
@@ -32,7 +31,11 @@ plot.cmaq <- function(main="") {
     #plot.cmaq()
 ###########
 
-find.x1 <- function(one.row) {
+find.X1 <- function(DD) {
+
+  library(foreach)
+  library(doMC)
+  registerDoMC(16)
 
   find.smallest.i <- function(one.row,k=10) {
     Ind <- NULL
@@ -49,9 +52,13 @@ find.x1 <- function(one.row) {
     (1 - one.row/sum(one.row)) %*% one.row /k
   }
 
-  ind <- find.smallest.i(one.row)
-  weighted.ave(cmaq$CMAQ[ind])
+  find.x1 <- function(one.row) {
+    ind <- find.smallest.i(one.row)
+    weighted.ave(cmaq$CMAQ[ind])
+  }
 
+  X1 <- foreach(i=1:nrow(DD),.combine=rbind) %dopar% find.x1(DD[i,])
+  X1
 }  
 
 
@@ -60,7 +67,7 @@ N <- nrow(o3)
 coord <- cbind(o3$La,o3$Lo)
 Y <- o3$Ozone
 D.X1 <- rdist(o3[,5:4],cmaq[,1:2]) # 800 x 66960 
-X1 <- foreach(i=1:nrow(D.X1),.combine=rbind) %dopar% find.x1(D.X1[i,])
+X1 <- find.X1(D.X1)
 X <- cbind(1,X1)
 
 nu <- 2
@@ -83,8 +90,8 @@ K <- nrow(pred)
 D <- rdist(rbind(pred,coord))
 
 DD <- rdist(predL[,3:2],cmaq[,1:2])
-x1 <- foreach(i=1:nrow(DD),.combine=rbind) %dopar% find.x1(DD[i,])
-x   <- cbind(1,x1)
+x1 <- find.X1(DD)
+x  <- cbind(1,x1)
 mu.2 <-  x %*% b.hat
 
 V <- s2*Matern(D,alpha=phi,nu=nu) #V = Sigma_Y
@@ -100,7 +107,22 @@ plot.pred <- function(main="") {
   map('state',add=T)
 }
 
-plot.pred("Predicted OZone Levels")
+plot.pred.lo <- function(main="") {
+  quilt.plot(pred[,2],pred[,1],lower,main=main)
+  map('state',add=T)
+}
+
+plot.pred.hi <- function(main="") {
+  quilt.plot(pred[,2],pred[,1],upper,main=main)
+  map('state',add=T)
+}
+
+par(mfrow=c(3,1))
+  plot.pred.hi("Predicted OZone Levels Upper")
+  plot.pred("Predicted OZone Levels")
+  plot.pred.lo("Predicted OZone Levels Lower")
+par(mfrow=c(1,1))
+
 ####### Comparison:######
 #par(mfrow=c(3,1))
 #  plot.cmaq("CMAQ")
