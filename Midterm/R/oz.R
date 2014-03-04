@@ -26,15 +26,15 @@ plot.CMAQ <- function(main="") {
 
 #GP: #####################################################################
 GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
-               nu=2,init=c(c(var(o3$Ozone),.001))){
+               nu=2,init=c(c(var(o3$Ozone),.001)),find.X1.k=20){
 
-  find.X1 <- function(DD) {
+  find.X1 <- function(DD,k=find.X1.k) {
 
     library(foreach)
     library(doMC)
     registerDoMC(16)
 
-    find.smallest.i <- function(one.row,k=100) {
+    find.smallest.i <- function(one.row) {
       Ind <- NULL
       max.val <- max(one.row)+1
       for (i in 1:k){
@@ -51,7 +51,8 @@ GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
 
     find.x1 <- function(one.row) {
       ind <- find.smallest.i(one.row)
-      weighted.ave(cmaq$CMAQ[ind])
+      #weighted.ave(cmaq$CMAQ[ind]) # method 1
+      cmaq$CMAQ[ind] # method 2
     }
 
     X1 <- foreach(i=1:nrow(DD),.combine=rbind) %dopar% find.x1(DD[i,])
@@ -65,7 +66,8 @@ GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
   X1 <- find.X1(D.X1)
   X <- cbind(1,X1)
 
-  obs <- as.geodata(cbind(Y,X1,coord),data.col=1,coords.col=3:4)
+  dat <- cbind(Y,X1,coord)
+  obs <- as.geodata(dat,data.col=1,coords.col=(ncol(dat)-1):ncol(dat))
   gp.fit <- likfit(obs,cov.model="matern",kappa=nu,fix.kappa=TRUE,
                    ini.cov.pars=init,trend=~X1) # Takes 2 minutes
 
@@ -97,7 +99,7 @@ GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
 }
 
 #Main: #####################################
-result <- GP()
+result <- GP(find.X1.k=10)
 center <- result$pred  
 upper  <- result$upper
 lower  <- result$lower
@@ -129,6 +131,10 @@ par(mfrow=c(1,1))
 #   3) Interpret
 
 # 1) Residuals:
-y.hat <- GP(pred=cbind(O3$Lo,O3,La))
-y <- O3$Ozone
-resids <- y-y.hat
+resids <- result$gp.fit$model.components$residuals
+plot(resids,pch=20)
+hist(resids,col='gold',30,freq=F) # Looks like a Cauchy / Laplace
+curve(dnorm(x,0,2.8),from=-20,20,col='red',add=T,lwd=3)
+curve(dcauchy(x,0,2.2),from=-20,20,col='blue',add=T,lwd=3)
+qqnorm(resids,col='gold')  # Looks reasonable
+
