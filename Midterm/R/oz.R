@@ -213,10 +213,11 @@ plot.all <- function(){
   options("scipen"=5,"digits"=3)
 
   xtab.cov.mse <- xtable(cov.and.mse,digits=c(1,3,3,3))
-  sink("../latex/xtabs/cov.mse.tex"); xtab.cov.mse; sink()
+  sink("../latex/raw/cov.mse.tex"); xtab.cov.mse; sink()
 
 #3) Interpret:
   result$gp.fit$beta
+
   plot.all()
   plot.prediction()
   plot.compare.methods()
