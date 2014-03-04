@@ -3,14 +3,13 @@ library(LatticeKrig)
 library(geoR)
 library(maps)
 library(foreach)
-library(DoMC)
+library(doMC)
 registerDoMC(16)
 
 cmaq  <- read.csv("../Data/CMAQ.csv")       # 66960 x 4
 o3    <- read.csv("../Data/Ozone.csv")      #   800 x 6
 predL <- read.csv("../Data/PredLocs.csv")   #  2834 x 4
 
-D <- rdist(o3[,5:4],cmaq[,1:2]) # 800 x 66960 
 
 plot.o3 <- function(main="") {
   quilt.plot(o3$Lon,o3$Lat,o3$Ozone,main=main)
@@ -24,16 +23,17 @@ plot.cmaq <- function(main="") {
 
 # Quick commands to comment out when coding is done
   # Data:
-    head(cmaq)
-    head(o3)
-    head(predL)
+    #head(cmaq)
+    #head(o3)
+    #head(predL)
 
   # Exploratory Plots:
-    plot.o3()
-    plot.cmaq()
+    #plot.o3()
+    #plot.cmaq()
 ###########
 
-find.X1 <- function(DD) {
+find.x1 <- function(one.row) {
+
   find.smallest.i <- function(one.row,k=10) {
     Ind <- NULL
     max.val <- max(one.row)+1
@@ -44,17 +44,14 @@ find.X1 <- function(DD) {
     Ind
   }
 
-  smallest.i <- foreach(i=1:nrow(DD),.combine=rbind) %dopar% find.smallest.i(DD[i,])
-
   weighted.ave <- function(one.row) {
     k <- length(one.row)
     (1 - one.row/sum(one.row)) %*% one.row /k
   }
 
-  X1 <- foreach(i=1:nrow(DD),.combine=rbind) %dopar% 
-                weighted.ave(cmaq$CMAQ[smallest.i[i,]])
-  
-  X1
+  ind <- find.smallest.i(one.row)
+  weighted.ave(cmaq$CMAQ[ind])
+
 }  
 
 
@@ -63,7 +60,7 @@ N <- nrow(o3)
 coord <- cbind(o3$La,o3$Lo)
 Y <- o3$Ozone
 D.X1 <- rdist(o3[,5:4],cmaq[,1:2]) # 800 x 66960 
-X1 <- find.X1(D.X1)
+X1 <- foreach(i=1:nrow(D.X1),.combine=rbind) %dopar% find.x1(D.X1[i,])
 X <- cbind(1,X1)
 
 nu <- 2
@@ -71,7 +68,7 @@ nu <- 2
 #obs <- as.geodata(cbind(Y,X1,coord),data.col=1,covar.col=2,coords.col=3:4)
 obs <- as.geodata(cbind(Y,X1,coord),data.col=1,coords.col=3:4)
 gp.fit <- likfit(obs,cov.model="matern",kappa=nu,fix.kappa=TRUE,
-                 ini.cov.pars=c(var(Y),.001), trend=~X1) # Takes a minute
+                 ini.cov.pars=c(var(Y),.001),trend=~X1) # Takes 2 minutes
 
 phi <- 1/gp.fit$phi
 s2 <- gp.fit$sigmasq
@@ -85,7 +82,8 @@ pred <- cbind(predL$Y,predL$X)
 K <- nrow(pred)
 D <- rdist(rbind(pred,coord))
 
-x1 <- find.X1(rdist(predL[,3:2],cmaq[,1:2]))
+DD <- rdist(predL[,3:2],cmaq[,1:2])
+x1 <- foreach(i=1:nrow(DD),.combine=rbind) %dopar% find.x1(DD[i,])
 x   <- cbind(1,x1)
 mu.2 <-  x %*% b.hat
 
@@ -102,7 +100,7 @@ plot.pred <- function(main="") {
   map('state',add=T)
 }
 
-# plot.pred("Predicted OZone Levels")
+plot.pred("Predicted OZone Levels")
 ####### Comparison:######
 #par(mfrow=c(3,1))
 #  plot.cmaq("CMAQ")
