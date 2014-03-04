@@ -1,4 +1,6 @@
 # 3-4 minutes run-time:
+# X - Longitude
+# Y - Latitude
 
 rm(list=ls())
 library(LatticeKrig)
@@ -120,3 +122,13 @@ par(mfrow=c(3,1))
   plot.O3("OZone")
 par(mfrow=c(1,1))
 ##################################################
+
+# Need: 
+#   1) Residuals
+#   2) Coverage
+#   3) Interpret
+
+# 1) Residuals:
+y.hat <- GP(pred=cbind(O3$Lo,O3,La))
+y <- O3$Ozone
+resids <- y-y.hat
