@@ -163,14 +163,18 @@ plot.all <- function(){
    resids <- result$gp.fit$model.components$residuals
 
    #1:
-   plot(resids,pch=20,main"Residuals")
+   pdf("../latex/raw/resids.pdf")
+     plot(resids,pch=20,main="Residuals")
+   dev.off()
 
    #2: # Looks like a Cauchy / Laplace
-   hist(resids,col='gold',30,freq=F,main="Histogram of Residuals",xlab="Residuals")
-   curve(dnorm(x,0,2.8),from=-20,20,col='red',add=T,lwd=3)
-   curve(dcauchy(x,0,2.2),from=-20,20,col='blue',add=T,lwd=3)
-   legend("topleft",legend=c("Normal(0, 2.8)","Cauchy(0, 2.2)"),
-          col=c("red","blue"),lwd=3)
+   pdf("../latex/raw/hist.pdf")
+     hist(resids,col='gold',30,freq=F,main="Histogram of Residuals",xlab="Residuals")
+     curve(dnorm(x,0,2.8),from=-20,20,col='red',add=T,lwd=3)
+     curve(dcauchy(x,0,2.2),from=-20,20,col='blue',add=T,lwd=3)
+     legend("topleft",legend=c("Normal(0, 2.8)","Cauchy(0, 2.2)"),
+            col=c("red","blue"),lwd=3)
+   dev.off()
 
    #3:
    pdf("../latex/raw/qqnorm.pdf")
