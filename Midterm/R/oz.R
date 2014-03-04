@@ -216,7 +216,16 @@ plot.all <- function(){
   sink("../latex/raw/cov.mse.tex"); xtab.cov.mse; sink()
 
 #3) Interpret:
-  result$gp.fit$beta
+  
+  beta.est <- result$gp.fit$beta
+  beta.sd  <- sqrt(diag(result$gp.fit$beta.var))
+  beta.ci  <- t(apply(cbind(beta.est,beta.sd),1,
+                function(x) qnorm(c(.025,.975),x[1],x[2])))
+  betas <- cbind(beta.est,beta.ci)
+  colnames(betas) <- c("Estimates","CI.Lo","CI.Hi")
+  rownames(betas) <- paste("beta",1:nrow(betas)-1,sep="")
+  xtab.beta <- xtable(betas,digits=5)
+  sink("../latex/raw/beta.tex"); xtab.beta; sink()
 
   plot.all()
   plot.prediction()
