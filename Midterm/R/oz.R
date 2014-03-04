@@ -26,10 +26,11 @@ plot.CMAQ <- function(main="") {
 
 #GP: #####################################################################
 GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
-               nu=2,init=c(c(var(o3$Ozone),.001)),find.X1.k=10){
+               nu=2,init=c(c(var(o3$Ozone),.001)),X1.col=10){
 
-  find.X1 <- function(DD,k=find.X1.k) {
+  find.X1 <- function(DD,k=X1.col) {
 
+    print(paste("Finding",k,"closest columns"))
     find.smallest.i <- function(one.row) {
       Ind <- NULL
       max.val <- max(one.row)+1
@@ -51,20 +52,21 @@ GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
       cmaq$CMAQ[ind] # method 2
     }
 
-    library(foreach)
-    library(doMC)
-    registerDoMC(10)
-    X1 <- foreach(i=1:nrow(DD),.combine=rbind) %dopar% find.x1(DD[i,])
+    #library(foreach)
+    #library(doMC)
+    #registerDoMC(10)
+    #X1 <- foreach(i=1:nrow(DD),.combine=rbind) %dopar% find.x1(DD[i,])
 
-    #do.one <- function(y) t(find.x1(y,find.X1.k))
-    #X1 <- apply(DD,1,find.x1)
+    do.one <- function(y) rbind(find.x1(y,X1.col))
+    X1 <- t(apply(DD,1,find.x1))
     X1
   }  
   
   N <- nrow(o3)
   coord <- cbind(o3$Lo,o3$La)
   Y <- o3$Ozone
-  D.X1 <- rdist(o3[,5:4],cmaq[,1:2])
+  print("rdist is executing")
+  D.X1 <- rdist(coord,cmaq[,1:2])
   X1 <- find.X1(D.X1)
   X <- cbind(1,X1)
 
@@ -82,26 +84,34 @@ GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
 
   # Predictions:
   K <- nrow(pred)
+  print("rdist is executing")
   D <- rdist(rbind(as.matrix(pred),as.matrix(coord)))
 
+  print("rdist is executing")
   DD <- rdist(pred,cmaq[,1:2])
   x1 <- find.X1(DD)
   x  <- cbind(1,x1)
   mu.2 <-  x %*% b.hat
 
+  print("Computing V with Matern")
   V <- s2*Matern(D,alpha=phi,nu=nu) #V = Sigma_Y
+  print("Computing E[Y|X]. Heavy matrix inverting.")
   EV <- mu.2 + V[1:K,K+(1:N)] %*% solve(V[K+(1:N),K+(1:N)]+tau2*diag(N)) %*% (Y-mu.1)
+  print("Computing var[Y|X]. Heavy matrix inverting.")
   cond.Var <- diag((V[1:K,1:K]+tau2*diag(K))-V[1:K,K+(1:N)] %*% 
               solve(V[K+(1:N),K+(1:N)] + tau2*diag(N))%*%t(V[1:K,K+(1:N)]))
 
   upper <- qnorm(0.975,mean=EV,sd=sqrt(cond.Var))
   lower <- qnorm(0.025,mean=EV,sd=sqrt(cond.Var))
 
+  print("Completed a Gaussian Process! :)")
   list("gp.fit"=gp.fit,"prediction"=EV,"upper"=upper,"lower"=lower)
 }
 
 #Main: #####################################
-result <- GP(find.X1.k=10)
+temp <- GP(X1.col=10)
+
+result <- GP(X1.col=10)
 center <- result$pred  
 upper  <- result$upper
 lower  <- result$lower
@@ -112,20 +122,36 @@ plot.pred <- function(pred,main="",predl=predL) {
 }
 
 # Comparison of upper, center, and lower: ########
-par(mfrow=c(3,1))
-  plot.pred( upper,"Predicted OZone Levels Upper")
-  plot.pred(center,"Predicted OZone Levels")
-  plot.pred( lower,"Predicted OZone Levels Lower")
-par(mfrow=c(1,1))
+plot.prediction <- function(){
+  par(mfrow=c(3,1))
+    plot.pred( upper,"Predicted OZone Levels Upper")
+    plot.pred(center,"Predicted OZone Levels")
+    plot.pred( lower,"Predicted OZone Levels Lower")
+  par(mfrow=c(1,1))
+}
 ##################################################
 
 # Comparison of CMAQ, O3, and Prediction: ########
-par(mfrow=c(3,1))
-  plot.CMAQ("CMAQ")
-  plot.pred(center,"Predicted")
-  plot.O3("OZone")
-par(mfrow=c(1,1))
+plot.compare.methods <- function(){
+  par(mfrow=c(3,1))
+    plot.CMAQ("CMAQ")
+    plot.pred(center,"Predicted")
+    plot.O3("OZone")
+  par(mfrow=c(1,1))
+}
 ##################################################
+
+# Compare All: ###################################
+plot.all <- function(){
+  par(mfrow=c(3,2))
+    plot.pred( upper,"Predicted OZone Levels Upper")
+    plot.CMAQ("CMAQ")
+    plot.pred(center,"Predicted OZone Levels")
+    plot.pred(center,"Predicted OZone Levels")
+    plot.pred( lower,"Predicted OZone Levels Lower")
+    plot.O3("OZone")
+  par(mfrow=c(1,1))
+}
 
 # Need: 
 #   1) Residuals: Done
@@ -152,7 +178,7 @@ par(mfrow=c(1,1))
 # 2) Coverage:
   get.coverage <- function(test.size=50) {
     testI <- sample(1:nrow(O3),test.size)
-    cv.1  <- GP(o3=O3[-testI,],pred=O3[testI,5:4],find.X1.k=10)
+    cv.1  <- GP(o3=O3[-testI,],pred=O3[testI,5:4],X1.col=10)
     cv.lo <- cv.1$lower
     cv.up <- cv.1$upper
     y.in.pi <- ifelse(cv.lo<=O3[testI,6] & O3[testI,6]<=cv.up,T,F) 
@@ -162,9 +188,20 @@ par(mfrow=c(1,1))
     list("coverage"=p,"ci"=cov.ci,"testI"=testI,"gp"=cv.1)
   }
   coverage <- get.coverage(100)
-  #plot.pred(coverage$gp$pred,predl=predL[coverage$testI,])
-  #coverage[1:2]
 
+  #test:
+    #coverages <- cbind(1:10)
+    #f <- function(x) get.coverage(400)$coverage
+    #coverages <- apply(coverages,1,f)
+    #plot.pred(coverage$gp$pred,predl=predL[coverage$testI,])
+    #coverage[1:2]
+    library(foreach)
+    library(doMC)
+    registerDoMC(10)
+    coverages <- foreach(i=1:10) %dopar% get.coverage(100)
 
 #3) Interpret:
   result$gp.fit$beta
+  plot.all()
+  plot.prediction()
+  plot.compare.methods()
