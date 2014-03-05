@@ -25,7 +25,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction: Problem Statement \& Goals}
-
+    \includegraphics{raw/cmaq.pdf}
+    \includegraphics{raw/ozone.pdf}
 
 \section{Method \& Model}
   \subsection{Brief Description of method / models used}
@@ -34,11 +35,21 @@
   \subsection{Why choose a Gaussian Process?}
   \subsection{How does the GP solve the problem?}
   \subsection{Are Assumptions Justified?}
+    \includegraphics{raw/resids.pdf}
+    \includegraphics{raw/qqnorm.pdf}
+    \includegraphics{raw/hist.pdf}
 \section{Results}
   \subsection{Estimates of Parameters and CI}
+    \input{raw/beta.tex}
   \subsection{Coverage \& MSE }
+    \input{raw/cov.mse.tex}
+  \subsection{Predictions \& Uncertainties}
+    \includegraphics{raw/center.pdf}
+    \includegraphics{raw/lower.pdf}
+    \includegraphics{raw/upper.pdf}
   \subsection{Interpretation}
   \subsection{Summary of Main Points}
+    \includegraphics{raw/all.pdf}
 \section{Conclusion}
   \subsection{Potential Alternative Approaches}
   \subsection{Shortcomings of GP or the way covars were chosen}

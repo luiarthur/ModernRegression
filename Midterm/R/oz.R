@@ -223,8 +223,8 @@ pdf("../latex/raw/all.pdf");plot.all();dev.off()
   rownames(cov.and.mse) <- c("Coverage","MSE")
   options("scipen"=5,"digits"=3)
 
-  xtab.cov.mse <- xtable(cov.and.mse,digits=c(1,3,3,3))
-  sink("../latex/raw/cov.mse.tex"); xtab.cov.mse; sink()
+  xtab.cov.mse <- xtable(cov.and.mse,digits=c(1,3,3,3),caption='Coverage and MSE')
+  sink("../latex/raw/cov.mse.tex"); print(xtab.cov.mse,caption.pl='top'); sink()
 
 #3) Interpret:
   
@@ -234,9 +234,11 @@ pdf("../latex/raw/all.pdf");plot.all();dev.off()
                 function(x) qnorm(c(.025,.975),x[1],x[2])))
   betas <- cbind(beta.est,beta.ci)
   colnames(betas) <- c("Estimates","CI.Lo","CI.Hi")
-  rownames(betas) <- paste("beta",1:nrow(betas)-1,sep="")
-  xtab.beta <- xtable(betas,digits=5)
-  sink("../latex/raw/beta.tex"); xtab.beta; sink()
+  rownames(betas) <- paste("$\\beta_{",1:nrow(betas)-1,"}$",sep="")
+  xtab.beta <- xtable(betas,digits=5,caption='Table 1: Parameter Estimates')
+  sink("../latex/raw/beta.tex")
+    print(xtab.beta,sanitize.text.function=function(x){x},caption.pl='top')
+  sink()
 
   params <- rbind(result$gp.fit$tausq,1/result$gp.fit$phi,result$gp.fit$sigmasq)
   rownames(params) <- c("tau2","phi","sigma2")
