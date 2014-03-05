@@ -110,7 +110,6 @@ GP <- function(o3=O3,cmaq=CMAQ,pred=cbind(predL$X,predL$Y),
 }
 
 #Main: #####################################
-temp <- GP(X1.col=10)
 
 result <- GP(X1.col=10)
 center <- result$pred  
@@ -153,6 +152,13 @@ plot.all <- function(){
     plot.O3("OZone")
   par(mfrow=c(1,1))
 }
+
+pdf("../latex/raw/cmaq.pdf");plot.CMAQ("CMAQ");dev.off()
+pdf("../latex/raw/center.pdf");plot.pred(center,"Predicted OZone Levels");dev.off()
+pdf("../latex/raw/lower.pdf");plot.pred( lower,"Predicted OZone Levels Lower");dev.off()
+pdf("../latex/raw/upper.pdf");plot.pred( upper,"Predicted OZone Levels Upper");dev.off()
+pdf("../latex/raw/ozone.pdf");plot.O3("OZone");dev.off()
+pdf("../latex/raw/all.pdf");plot.all();dev.off()
 
 # Need: 
 #   1) Residuals: Done
@@ -231,6 +237,9 @@ plot.all <- function(){
   rownames(betas) <- paste("beta",1:nrow(betas)-1,sep="")
   xtab.beta <- xtable(betas,digits=5)
   sink("../latex/raw/beta.tex"); xtab.beta; sink()
+
+  params <- rbind(result$gp.fit$tausq,1/result$gp.fit$phi,result$gp.fit$sigmasq)
+  rownames(params) <- c("tau2","phi","sigma2")
 
   plot.all()
   plot.prediction()
