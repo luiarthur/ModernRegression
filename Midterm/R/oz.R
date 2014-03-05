@@ -145,19 +145,19 @@ plot.compare.methods <- function(){
 plot.all <- function(){
   par(mfrow=c(3,2))
     plot.pred( upper,"Predicted OZone Levels Upper")
-    plot.CMAQ("CMAQ")
+    plot.CMAQ("CMAQ Ozone")
     plot.pred(center,"Predicted OZone Levels")
     plot.pred(center,"Predicted OZone Levels")
     plot.pred( lower,"Predicted OZone Levels Lower")
-    plot.O3("OZone")
+    plot.O3("Directly Measured OZone")
   par(mfrow=c(1,1))
 }
 
-pdf("../latex/raw/cmaq.pdf");plot.CMAQ("CMAQ");dev.off()
+pdf("../latex/raw/cmaq.pdf");plot.CMAQ("CMAQ Ozone");dev.off()
 pdf("../latex/raw/center.pdf");plot.pred(center,"Predicted OZone Levels");dev.off()
 pdf("../latex/raw/lower.pdf");plot.pred( lower,"Predicted OZone Levels Lower");dev.off()
 pdf("../latex/raw/upper.pdf");plot.pred( upper,"Predicted OZone Levels Upper");dev.off()
-pdf("../latex/raw/ozone.pdf");plot.O3("OZone");dev.off()
+pdf("../latex/raw/ozone.pdf");plot.O3("Directly Measured OZone");dev.off()
 pdf("../latex/raw/all.pdf");plot.all();dev.off()
 
 # Need: 
