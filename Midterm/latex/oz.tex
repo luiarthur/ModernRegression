@@ -25,6 +25,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction: Problem Statement \& Goals}
+
     \includegraphics{raw/cmaq.pdf}
     \includegraphics{raw/ozone.pdf}
 
@@ -41,6 +42,14 @@
 \section{Results}
   \subsection{Estimates of Parameters and CI}
     \input{raw/beta.tex}
+    \[
+      \begin{pmatrix}
+        \hat{\tau^2} \\
+        \hat{\sigma^2} \\
+        \hat{\phi}
+      \end{pmatrix} =
+      \begin{pmatrix} 19.61\\1.04\\40.99 \end{pmatrix}
+    \]
   \subsection{Coverage \& MSE }
     \input{raw/cov.mse.tex}
   \subsection{Predictions \& Uncertainties}
