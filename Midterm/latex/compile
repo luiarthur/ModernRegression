@@ -3,4 +3,4 @@
 #system("cd ../; R CMD BATCH cars.R; cd latex")
 system("pdflatex oz.tex")
 system("rm *.log *.aux")
-system("firefox oz.pdf &")
+system("evince oz.pdf &")
