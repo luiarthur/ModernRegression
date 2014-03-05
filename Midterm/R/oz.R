@@ -176,10 +176,8 @@ pdf("../latex/raw/all.pdf");plot.all();dev.off()
    #2: # Looks like a Cauchy / Laplace
    pdf("../latex/raw/hist.pdf")
      hist(resids,col='gold',30,freq=F,main="Histogram of Residuals",xlab="Residuals")
-     curve(dnorm(x,0,2.8),from=-20,20,col='red',add=T,lwd=3)
-     curve(dcauchy(x,0,2.2),from=-20,20,col='blue',add=T,lwd=3)
-     legend("topleft",legend=c("Normal(0, 2.8)","Cauchy(0, 2.2)"),
-            col=c("red","blue"),lwd=3)
+     lines(density(rnorm(1000000,sd=1:7)),col='blue',lwd=3)
+     legend("topleft",legend="Normal(0,V)",col="blue",lwd=3)
    dev.off()
 
    #3:
