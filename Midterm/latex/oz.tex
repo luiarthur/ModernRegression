@@ -44,16 +44,16 @@
   a model using a Gaussian Process.
 
   %Exploratory Plots
-  \begin{figure}\begin{center}
+  \beginmyfig
     \includegraphics{raw/cmaq.pdf}
     \caption{CMAQ measurements of O$_3$. CMAQ simulates O$_3$ measurements
              easily at many locations. But measurements are inaccurate.}
-  \end{center}\end{figure}
+  \endmyfig
 
-  \begin{figure}\begin{center}
+  \beginmyfig
     \includegraphics{raw/ozone.pdf}
     \caption{Direct measurements of O$_3$. Direct measurements are sparse.}
-  \end{center}\end{figure}
+  \endmyfig
 
 
 \section{Methods \& Model Used}
@@ -140,47 +140,97 @@
     A plot of the histogram of the residuals shows that the residuals are normally
     distributed with mean 0 and covariance matrix $V = \sigma^2\bm R + \tau^2\bm I$
     (see Figure 3).
-    \begin{figure}\begin{center}
+    \beginmyfig
       \includegraphics{raw/hist.pdf}
       \caption{Plot of histogram of residuals.}
-    \end{center}\end{figure}
+    \endmyfig
 
 \section{Results}
   \subsection{Estimates of Parameters and CI}
     Estimates of the parameters are listed as follows: 
-    $ \hat{\tau^2} = 19.61, \hat{\sigma^2} = 1.04, \hat{\phi} = 40.88 $.
-    \textbf{Table 1} shows the parameter estimates with their 
-    95\% confidence intervals.
+    $ \hat{\tau^2} = 19.61, \hat{\sigma^2} = 1.04, \hat{\phi} = 40.88 $, and 
+    $\nu$ was chosen to be 2 because the data doesn't inform us about its value
+    and because it gives a smooth curve. \textbf{Table 1} shows the 
+    parameter estimates with their 95\% confidence intervals.
 
     \input{raw/beta.tex}
-    
+    \wl\noindent
     $\beta_0$ is the expected O$_3$ level if the 10 nearest CMAQ measurements are
-    0. 
+    0. Also when $X_i$, the $i^{th}$ nearest CMAQ location (with respect to 
+    the prediction locatation), increases by 1 unit, $\bm Y$ = O$_3$ is expected 
+    to increase by $\beta_i$, for i $\in$ \{$1,\dots,10$\}.
 
   \subsection{Coverage \& MSE }
+    \textbf{Table 2} summarizes the estimate and estimates of the coverage and MSE.
     \input{raw/cov.mse.tex}
+
   \subsection{Predictions \& Uncertainties}
-    \begin{figure}\begin{center}
-    \includegraphics{raw/center.pdf}
+    After obtaining parameter estimates for $\beta$ and the scalar parameters,
+    predictions can be made very easily using the conditional distribution
+    of the normal distribution, as mentioned previously.
+    \wl\noindent
+    Predicted O$_3$ values and their 95\% confidence intervals were plotted
+    (see \textbf{Figures 4-6}). That is, for each colored grid location, the color
+    represents the predicted O$_3$ (in \textbf{Figure 4}). Also for each colored
+    grid location, the 95\% lower limit of the confidence interval was represented
+    in \textbf{Figure 4}, and the 95\% upper limit of the confidence interval
+    was represented in \textbf{Figure 5}.
+
+    \beginmyfig
+      \includegraphics{raw/center.pdf}
       \caption{Predicted O$_3$.}
-    \end{center}\end{figure}
+    \endmyfig
 
-    \begin{figure}\begin{center}
-    \includegraphics{raw/lower.pdf}
+    \beginmyfig
+      \includegraphics{raw/lower.pdf}
       \caption{Lower Predicted O$_3$.}
-    \end{center}\end{figure}
+    \endmyfig
 
-    \begin{figure}\begin{center}
-    \includegraphics{raw/upper.pdf}
+    \beginmyfig
+      \includegraphics{raw/upper.pdf}
       \caption{Upper Predicted O$_3$.}
-    \end{center}\end{figure}
+    \endmyfig
 
+    
+  \subsection{Main Points}
+    \textbf{Figure 7} is just a combination of all the figures included so far. 
+    We can easily see that corresponding regions have higher O$_3$ values 
+    in the the top left plot than the bottom left plot. We can also see that
+    where there is even a little bit of data in the bottom right graph, the middle
+    right graph borrows more information from the bottom right graph. Where there
+    is only very little data in the bottom right graph, the middle right graph
+    borrows more information from the top right graph.
 
-  \subsection{Interpretation}
-  \subsection{Summary of Main Points}
-    \includegraphics{raw/all.pdf}
+    \beginmyfig  
+      \includegraphics{raw/all.pdf}
+      \caption{A comparison of the different plots.}
+    \endmyfig
+
 \section{Conclusion}
-  \subsection{Potential Alternative Approaches}
-  \subsection{Shortcomings of GP or the way covars were chosen}
-  \subsection{Further Investigation}
+  \subsection{Potential Alternative Approaches to Investigate}
+    Alternate approaches can be taken to compute the $\bm X(s)$ matrix defined
+    in the Statistical Spatial Model. I chose the 10 nearest locations because
+    I thought it was computationally easy and sensible. That is, O$_3$ values
+    at a certain location is more affected by O$_3$ levels near by, but hardly
+    affected by O$_3$ levels far away. The 20 nearest points could have been 
+    chosen. Cross validation could have been used to determine how many of 
+    the nearest points to include in the model. Likewise, all the 66960 
+    points would have been included in the model, but that would be computationally
+    difficult. Forward selection, lasso, ridge, or principal components
+    could also be used in model selection to determine which covariates to include.
+    It could be the case that due to collinearity, every other closest
+    point should be included in the model, but not every closest point, to 
+    increase prediction accuracy while reducing collinearity.
+
+  \subsection{Shortcomings of GP}
+    The Gaussian Process is good at fitting nonlinear, and spatial data.
+    The Gaussian Process is also convenient in the sense that it is
+    unlike b-splines, where the number of knots needs to be determined.
+    One draw-back of the Gaussian Process is that inverting large matrices 
+    is computationally expensive. Another draw back of the Gaussian Process
+    is that the rules of determining how to create the covariate matrix $\bm X$
+    can be quite clumsy. And searching for the model that produces the best 
+    (most accurate) predictions will be difficult and time intensive as the
+    algorithms will take a long time to implement.
+
 \end{document}
