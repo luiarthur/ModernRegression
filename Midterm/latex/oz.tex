@@ -24,9 +24,32 @@
 \setkeys{Gin}{width=1\textwidth}                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Introduction: Problem Statement \& Goals}
+\section{Introduction}
+  Ozone (O$_3$), a gas in the atmosphere, protects humans from the sun's UV
+  radiation. However, ozone that is close to the ground can be dangerous to
+  humans. Ozone is formed when pollutants react with each other in the presence
+  of heat. It is the main component of smog. Enhaling high concentrations of
+  O$_3$ triggers chest pain, bronchitis, emphysema, asthma, etc. Scientists have
+  monitored O$_3$ levels by 1) direct measurement at measurement stations and 2)
+  mathematically simulating the measurements using Community Multi-scale Air
+  Quality Model (CMAQ). CMAQ O$_3$ measurements are simulated (on a fine spatial
+  scale) based on ground characteristics, temperature, urban density, etc.  So,
+  CMAQ data is vast (see \textbf{Figure 1}), but not as accurate as direct
+  measurements. However, direct measurements are sparse (see \textbf{Figure 2}).
+  The Environmental Protection Agency (EPA), which monitors O$_3$ are,
+  therefore, interested in understanding the relationship between CMAQ (which is
+  inaccurate) and station measurements. They eventually hope to predict
+  ground-level O$_3$ at many locations given CMAQ measurements and observed
+  measurements. Using a data set provided by Dr.  Heaton, I will construct such
+  a model using a Gaussian
+  Process.
 
-    \includegraphics{raw/cmaq.pdf}
+  \subsection{Data Exploration}
+    \begin{figure}\begin{center}
+      \caption{CMAQ measurements of O$_3$}
+      \includegraphics{raw/cmaq.pdf}
+    \end{center}\end{figure}
+
     \includegraphics{raw/ozone.pdf}
 
 \section{Method \& Model}
