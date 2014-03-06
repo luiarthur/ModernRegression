@@ -154,11 +154,15 @@
     parameter estimates with their 95\% confidence intervals.
 
     \input{raw/beta.tex}
-    \wl\noindent
-    $\beta_0$ is the expected O$_3$ level if the 10 nearest CMAQ measurements are
-    0. Also when $X_i$, the $i^{th}$ nearest CMAQ location (with respect to 
-    the prediction locatation), increases by 1 unit, $\bm Y$ = O$_3$ is expected 
-    to increase by $\beta_i$, for i $\in$ \{$1,\dots,10$\}.
+
+  \subsection{Interpretation of Parameters} 
+    $\beta_0$ is the expected O$_3$ level if the 10 nearest CMAQ measurements
+    are 0. So $beta_0$ can be thought of as the bias of CMAQ for O$_3$. Since
+    the 95\% confidence interval for $\beta_0$ does not include 0, CMAQ is
+    significantly biased for O$_3$.  Also when $X_i$, the $i^{th}$ nearest CMAQ
+    location (with respect to the prediction locatation), increases by 1 unit,
+    $\bm Y$ = O$_3$ is expected to increase by $\beta_i$, for i $\in$
+    \{$1,\dots,10$\}.
 
   \subsection{Coverage \& MSE }
     \textbf{Table 2} summarizes the estimate and estimates of the coverage and MSE.
