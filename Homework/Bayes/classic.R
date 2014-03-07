@@ -1,3 +1,9 @@
+dingam <- function(x,a,b)
+  b^a/gamma(a) * x^(-a-1) * exp(-b/x)
+
+ringam <- function(n,a,b)
+  1/rgamma(n,a,b)
+
 b0 <- 2
 b1 <- 3
 e <- rnorm(500)
@@ -11,7 +17,7 @@ abline(mod)
 m <- c(0,0) # Prior mean for beta
 S <- matrix(c(1,0,0,1),2,2)
 a <- 1
-b <- 1
+b <- 1 # beta is a scale parameter, not rate!
 
 XTX <- t(X)%*%X
 XTY <- t(X)%*%Y
@@ -22,8 +28,7 @@ update.beta <- function(m,S,s2){
   S <- solve(XTX / s2 + Si)
 }
 
-update.s2 <- function(a,b,B
-
+update.s2 <- function(a,b,B) {
 
 }
 
