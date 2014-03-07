@@ -10,10 +10,10 @@ ringam <- function(n,a,b)
   1/rgamma(n,a,b)
 
 n <- 1000
-b0 <- 2
+b0 <- 20
 b1 <- 3
-s2 <- 3
-beta <- c(2,3)
+s2 <- 7
+beta <- c(b0,b1)
 e <- rnorm(n,sd=sqrt(s2))
 X <- cbind(1,rnorm(n,.01))
 Y <- X%*%beta + e
