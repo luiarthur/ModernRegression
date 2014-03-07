@@ -1,15 +1,15 @@
 b0 <- 2
 b1 <- 3
 e <- rnorm(500)
-X <- rnorm(500,.01)
+X <- cbind(1,rnorm(500,.01))
 Y <- b0 + b1*X + e
-plot(X,Y,col='red',pch=20)
+plot(X[,2],Y,col='red',pch=20)
 
 mod <- lm(Y~X)
 abline(mod)
 
-m <- 0
-S <- 1
+m <- c(0,0) # Prior mean for beta
+S <- matrix(c(1,0,0,1),2,2)
 a <- 1
 b <- 1
 
