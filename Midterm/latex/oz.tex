@@ -62,13 +62,13 @@
   locations. This is a spatial problem. O$_3$ levels should be highly correlated 
   to other O$_3$ levels close by, but less correlated to O$_3$ levels far away. 
   But we would like to incorporate CMAQ as a covariate also so that we can
-  understand the relationship between directly-measured O$_3$ and CMAQ O$_3$.
+  understand the relationship between station-measured O$_3$ and CMAQ O$_3$.
   The model we create should also not assume linearity as we are not certain if
-  CMAQ and directly-measured O$_3$ are linear. The Gaussian Process Model can
+  CMAQ and station-measured O$_3$ are linear. The Gaussian Process Model can
   help us to created such a model. 
 
   \subsection{Description of The Gaussian Process:}
-  A Gaussian Process (GP) is a stochastic process where any finite collection
+  A Gaussian Process is a stochastic process where any finite collection
   observed random variables follow a multivariate normal distribution.
   In other words, for any set of $t_1,\dots,t_N \in T,~\bm{Y} =
   (Y(t_1),\dots,Y(t_N))^T \sim \mathcal{N}(\bm\mu,\bm\Sigma_Y)$.
@@ -125,7 +125,8 @@
              \sim \mathcal{N}(\bm{X\beta},\sigma^2\bm R + \tau^2\bm I_N) \] 
   where,  \begin{itemize}
             \item $\bm Y$ = Station Measured Ozone
-            \item $\bm X$ = the 10 CMAQ values nearest to our prediction location
+            \item $\bm X$ = a column of 1's followed by the 10 CMAQ values 
+                            nearest to our prediction location
             \item $\bm\beta$ = a vector of constants to be estimated
             \item $\bm R_{ij}$ = $\prod_{p=1}^P$ 
                                  Matern(||$\bm{s_{ip}-s_{jp}}$||,$\nu$,$\phi$), 
@@ -157,12 +158,12 @@
 
   \subsection{Interpretation of Parameters} 
     $\beta_0$ is the expected O$_3$ level if the 10 nearest CMAQ measurements
-    are 0. So $beta_0$ can be thought of as the bias of CMAQ for O$_3$. Since
+    are 0. So $\beta_0$ can be thought of as the bias of CMAQ for O$_3$. Since
     the 95\% confidence interval for $\beta_0$ does not include 0, CMAQ is
-    significantly biased for O$_3$.  Also when $X_i$, the $i^{th}$ nearest CMAQ
-    location (with respect to the prediction location), increases by 1 unit,
-    $\bm Y$ = O$_3$ is expected to increase by $\beta_i$, for i $\in$
-    \{$1,\dots,10$\}.
+    significantly biased (by 7.94) for O$_3$.  Also when $X_i$, the $i^{th}$
+    nearest CMAQ location (with respect to the prediction location), increases
+    by 1 unit, $\bm Y$ = O$_3$ is expected to increase by $\beta_i$, for i
+    $\in$ \{$1,\dots,10$\}.
 
   \subsection{Coverage \& MSE }
     \textbf{Table 2} summarizes the estimate and estimates of the coverage and MSE.
@@ -218,7 +219,7 @@
     at a certain location is more affected by O$_3$ levels near by, but hardly
     affected by O$_3$ levels far away. The 20 nearest points could have been 
     chosen. Cross validation could have been used to determine how many of 
-    the nearest points to include in the model. Likewise, all the 66960 
+    the nearest points to include in the model. Likewise, all the 66,960 
     points would have been included in the model, but that would be computationally
     difficult. Forward selection, lasso, ridge, or principal components
     could also be used in model selection to determine which covariates to include.
@@ -226,14 +227,14 @@
     point should be included in the model, but not every closest point, to 
     increase prediction accuracy while reducing collinearity.
 
-  \subsection{Shortcomings of GP}
-    The Gaussian Process is good at fitting nonlinear, and spatial data.
-    The Gaussian Process is also convenient in the sense that it is
-    unlike b-splines, where the number of knots needs to be determined.
-    One draw-back of the Gaussian Process is that inverting large matrices 
-    is computationally expensive. Another draw back of the Gaussian Process
-    is that the rules of determining how to create the covariate matrix $\bm X$
-    can be quite clumsy. And searching for the model that produces the best 
+  \subsection{Shortcomings of Gaussian Process}
+    The Gaussian Process is good at fitting models to nonlinear, and spatial
+    data.  The Gaussian Process is also convenient in the sense that it is
+    unlike b-splines, where the number of knots needs to be predetermined.  One
+    draw-back of the Gaussian Process is that inverting large matrices is
+    computationally expensive. Another draw back of the Gaussian Process is
+    that the rules of determining how to create the covariate matrix $\bm X$
+    can be quite clumsy. And searching for the model that produces the best
     (most accurate) predictions will be difficult and time intensive as the
     algorithms will take a long time to implement.
 
