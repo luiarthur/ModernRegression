@@ -3,4 +3,4 @@ library(jvmr)
 
 scala <- scalaInterpreter()
 interpret(scala,"x") <- matrix(1:30,5,6)
-interpret(scala,"x")
+matrix(interpret(scala,"x"),5,6)
