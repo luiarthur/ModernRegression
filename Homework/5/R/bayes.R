@@ -78,3 +78,5 @@ rownames(MS.CI) <- colnames(X)
 signif.beta <- MS.CI[which(MS.CI[,5]=="*"),]
 signif.beta
 MS.CI[,-2]
+
+# Now I want to do PCR
