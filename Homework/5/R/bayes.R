@@ -48,9 +48,13 @@ Gibbs <- function(B=10000){
 
   cat(paste(rep("#",50),collapse="")); cat("\n") # Begin Progress Bar
   for (i in 2:B){
+
+    #Updates:
     z <- updateZ(X,Y,beta[i,])
     beta[i,] <- mvrnorm(XtXi %*% Xt%*%z, XtXi) 
-    if(i%%(B/50)==0) cat(">") # Just another part of the progress bar
+
+    # Print Progess:
+    if(i%%(B/50)==0) cat(">")
   }
   cat("\n") # End Progress Bar
 
@@ -64,10 +68,13 @@ se.beta <- apply(result,2,sd)
 
 MS <- cbind(mean.beta,se.beta)
 get.ci <- function(ms) t(qnorm(c(.025,.975),ms[1],ms[2]))
-MS.CI <- cbind(MS,t(apply(cbind(MS),1,get.ci)))
+MS.CI <- as.data.frame(cbind(MS,t(apply(cbind(MS),1,get.ci))))
 signif <- ifelse(!MS.CI[,3] <= 0 & 0 <= MS.CI[,4],"*","")
 MS.CI <- cbind(MS.CI,signif)
 colnames(MS.CI) <- c("Estimate","Std.Err.","CI.Lower","CI.Upper","")
-rownames(MS.CI) <- paste("beta.",0:(ncol(X)-1),sep="")
+#rownames(MS.CI) <- paste("beta.",0:(ncol(X)-1),sep="")
+rownames(MS.CI) <- colnames(X)
 
 signif.beta <- MS.CI[which(MS.CI[,5]=="*"),]
+signif.beta
+MS.CI[,-2]
