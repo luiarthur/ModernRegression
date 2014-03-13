@@ -17,4 +17,4 @@ mod.L  <- glm(Fatal ~ Speed.Limit, data=crash, family=binomial("logit"))   # ***
 mod.D  <- glm(Fatal ~ Distracted, data=crash, family=binomial("logit"))    # ***
 mod.Dg <- glm(Fatal ~ Drugs, data=crash, family=binomial("logit"))        # ***
 
-#mod.s <- step(mod.1,scope=list(lower=mod.1,upper=mod.f),data=crash,direction="both")
+mod.s <- step(mod.1,scope=list(lower=mod.1,upper=mod.f),data=crash,direction="both")
