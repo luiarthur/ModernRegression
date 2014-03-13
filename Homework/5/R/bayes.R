@@ -38,7 +38,7 @@ updateZ <- function(x,y,b){
 }
 
 
-Gibbs <- function(B=10000){
+bayes.probit <- function(B=10000){
 
   # Initialize Parameters
   z <- 1
@@ -59,10 +59,10 @@ Gibbs <- function(B=10000){
   cat("\n") # End Progress Bar
 
 
-  beta[-c(1:B/10),]
+  beta[-c(1:B%/%10),]
 }
 
-result <- Gibbs()
+result <- bayes.probit()
 mean.beta <- apply(result,2,mean)
 se.beta <- apply(result,2,sd)
 
@@ -77,6 +77,6 @@ rownames(MS.CI) <- colnames(X)
 
 signif.beta <- MS.CI[which(MS.CI[,5]=="*"),]
 signif.beta
-MS.CI[,-2]
 
+cbind(round(MS.CI[,1:4],5),MS.CI[,5])
 # Now I want to do PCR
