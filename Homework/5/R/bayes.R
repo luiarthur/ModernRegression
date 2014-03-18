@@ -103,6 +103,7 @@ result <- foreach(j=1:N,.errorhandling="remove") %dopar% f(j)#one.sim(10000)
 sens <- sapply(result,function(x) x$Sens)
 spec <- sapply(result,function(x) x$Spec)
 write.table(cbind(sens,spec),"out/results.txt",quote=F,row=F)
+
 plot(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="blue",cex=.5); abline(0,1)
 
 
