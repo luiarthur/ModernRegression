@@ -10,6 +10,7 @@ registerDoMC(16)
 options("scipen"=8)
 options("width"=120)
 library(truncnorm) # for rtruncnorm
+pc <- function(X,M) t(eigen(cov(X))$vectors[,1:M])
 mvrnorm <- function(M,S,n=nrow(S))  M + t(chol(S)) %*% rnorm(n)
 
 # Data Cleaning:
@@ -18,8 +19,8 @@ crash <- crash[which(crash$Hour<=23),] # remove the 99th Hour. 23 of them.
 crash <- crash[-which(crash$Mod_year>2013),] # remove the 9999 model year. 4 of them. Come back to this.
 crash$Mod_year[which(crash$Mod_year<1987)] <- 1986 # Since there are only a few observations less than 1987, I grouped them together.
 crash <- crash[,-2] # There is only one year, so remove the Year column
-colnames(crash)
-str(crash)
+#colnames(crash)
+#str(crash)
 
 # Probit Bayesian Analysis:
 # Yi = I{Zi > 0} ~ Bern(pi)
@@ -57,25 +58,44 @@ bayes.probit <- function(B=10000,Y=crash$Fatal,X=model.matrix(Y~.,data=crash),..
   beta[-c(1:B%/%10),]
 }
 
-one.sim <- function(BB=10000,cv=T,j=1) {
+one.sim <- function(BB=10000,cv=F,size=0,PCR=F,M=0) {
 
   # Set Y and X
-  testI <- sample(1:nrow(crash),100,repl=T)
+  testI <- sample(1:nrow(crash),size,repl=F)
   if (!cv) testI <- -(1:nrow(crash))
 
-  Y <- crash$Fatal[-testI] # train set
-  X <- model.matrix(Fatal ~ .,data=crash[-testI,]) # train set
+  # Training Set
+  Y <- crash$Fatal[-testI]
+  X <- model.matrix(Fatal ~ .,data=crash[-testI,])
+  n <- nrow(X)
+  
+  PSI <- NULL
+  # Testing PCR:#######
+  if (PCR) {
+    PSI <- pc(scale(X[,-1]),M)
+    Z <- X[,-1] %*% t(PSI)
+    Z <- cbind(1,Z)
+    X <- Z
+  }
+  #####################
 
   comp.time <- system.time(result <- bayes.probit(B=BB,Y,X,style=3))
   mean.beta <- apply(result,2,mean)
   se.beta <- apply(result,2,sd)
+  s2 <- t(Y-X%*%mean.beta) %*% (Y-X%*%mean.beta) / (n-length(mean.beta))
+  if (PCR) {
+    mean.beta <- rbind(mean.beta[1],t(PSI) %*% mean.beta[-1])
+    se.beta <- c(se.beta[1],
+                 sqrt(s2 * diag(t(PSI) %*% solve(t(X[,-1])%*%X[,-1]) %*% PSI)))
+  }
 
   MS <- cbind(mean.beta,se.beta)
   get.ci <- function(ms) t(qnorm(c(.025,.975),ms[1],ms[2]))
+  if (PCR) get.ci <- function(ms) t(ms[1]+qt(c(.025,.975),n-M-1)*ms[2])
   MS.CI <- as.data.frame(cbind(MS,t(apply(cbind(MS),1,get.ci))))
   signif <- ifelse(!MS.CI[,3] <= 0 & 0 <= MS.CI[,4],"*","")
   MS.CI <- cbind(MS.CI,signif)
-  colnames(MS.CI) <- c("Estimate","Std.Err.","CI.Lower","CI.Upper","Sig")
+  colnames(MS.CI) <- c("Estimate","Std.Err","CI.Lower","CI.Upper","Sig")
   #rownames(MS.CI) <- paste("beta.",0:(ncol(X)-1),sep="")
   rownames(MS.CI) <- colnames(X)
 
@@ -86,6 +106,10 @@ one.sim <- function(BB=10000,cv=T,j=1) {
     list("MS.CI"=MS.CI,"signif"=signif.beta,"X"=X,"Y"=Y)
   } else {
     xb <- model.matrix(Fatal ~ ., data= crash[testI,]) %*% mean.beta
+    # Try to figure out how to use the significant beta's for prediction
+    #sig <- which(signif=="*")
+    #print(sig)
+    #xb <- model.matrix(Fatal ~ ., data= crash[testI,sig]) %*% mean.beta[sig]
     pred <- ifelse(xb>0,1,0)
     true <- crash$Fatal[testI]
     typy <- sum(true==1 & pred==1)
@@ -97,15 +121,39 @@ one.sim <- function(BB=10000,cv=T,j=1) {
   }
 }  
 
-N <- 1000
-f <- function(i) {print(i); one.sim(1000)}
-result <- foreach(j=1:N,.errorhandling="remove") %dopar% f(j)#one.sim(10000)
-sens <- sapply(result,function(x) x$Sens)
-spec <- sapply(result,function(x) x$Spec)
-write.table(cbind(sens,spec),"out/results.txt",quote=F,row=F)
+# Get Sens and Spec:
+one.sim(1000,cv=T,size=100)
+#N <- 100
+#f <- function(i) {print(i); one.sim(1000,cv=T,size=100)}
+#result <- foreach(j=1:N,.errorhandling="remove") %dopar% f(j)#one.sim(10000)
+#sens <- sapply(result,function(x) x$Sens)
+#spec <- sapply(result,function(x) x$Spec)
+#write.table(cbind(sens,spec),"out/results.txt",quote=F,row=F)
+##plot(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="red",cex=1,pch=20); abline(0,1)
+#lines(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="blue",cex=.5); abline(0,1)
 
-plot(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="blue",cex=.5); abline(0,1)
+
+#lines(lowess(1-spec,sens))
+#length(result)
+#mean(sens)
+#mean(1-spec)
 
 
-mean(sens)
-mean(1-spec)
+# Get M for PCR:
+#m <- 1:60
+#g <- function(i) {print(i); one.sim(1000,cv=T,size=100,M=m[i],PCR=T)}
+#result <- foreach(i=m,.errorhandling="remove") %dopar% g(i)
+#sens <- sapply(result,function(x) x$Sens)
+#spec <- sapply(result,function(x) x$Spec)
+#write.table(cbind(sens,spec),"out/results.txt",quote=F,row=F)
+#plot(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="red",cex=1,pch=20); abline(0,1)
+#plot(identify(1-spec,sens),xlim=c(0,1),ylim=c(0,1),col="red",cex=1,pch=20); abline(0,1)
+## Best to have M around 45
+
+# Compare PCR and Normal
+#result.pcr <- one.sim(1000,M=5,PCR=T)
+#result.nor <- one.sim(1000)
+#cbind(result.pcr$MS.CI$Est,result.nor$MS.CI$Est)
+#result.pcr$signif
+#result.nor$signif
+
