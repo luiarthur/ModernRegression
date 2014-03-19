@@ -144,15 +144,11 @@ write.table(cbind(sens,spec),"out/results.txt",quote=F,row=F)
 plot(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="blue",cex=.5,main="ROC"); abline(0,1)
 mod <- lm(sens ~ I(log(1.0001-spec)))
 h <- function(x,beta) beta[1] + beta[2] * log(x)
-xx <- seq(0.0001,1,length=100); yy <- NULL
-for (i in 1:length(xx)) yy[i] <- h(xx[i],mod$coef)
-lines(xx,yy)
-
+curve(h(x,beta=mod$coef),fr=.0001,to=.97,add=T,col='blue',lwd=2)
 mean(err)
 
-#length(result)
-#mean(sens)
-#mean(1-spec)
+# Find Best Threshold:
+#thr.result <- 
 
 
 # Get M for PCR:
