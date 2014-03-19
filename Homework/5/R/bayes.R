@@ -58,7 +58,7 @@ bayes.probit <- function(B=10000,Y=crash$Fatal,X=model.matrix(Y~.,data=crash),..
   beta[-c(1:B%/%10),]
 }
 
-one.sim <- function(BB=10000,cv=F,size=0,PCR=F,M=0) {
+one.sim <- function(BB=10000,cv=F,size=0,PCR=F,M=0,thresh=.5) {
 
   # Set Y and X
   testI <- sample(1:nrow(crash),size,repl=F)
@@ -105,35 +105,51 @@ one.sim <- function(BB=10000,cv=F,size=0,PCR=F,M=0) {
   if (!cv) { 
     list("MS.CI"=MS.CI,"signif"=signif.beta,"X"=X,"Y"=Y)
   } else {
-    xb <- model.matrix(Fatal ~ ., data= crash[testI,]) %*% mean.beta
-    # Try to figure out how to use the significant beta's for prediction
-    #sig <- which(signif=="*")
-    #print(sig)
-    #xb <- model.matrix(Fatal ~ ., data= crash[testI,sig]) %*% mean.beta[sig]
-    pred <- ifelse(xb>0,1,0)
+
+    # Low Accuracy: 25% Error Rate
+    sig <- which(signif=="*")
+    xb <- model.matrix(Fatal ~ ., data=crash[testI,])[,sig] %*% mean.beta[sig]
+    pred <- ifelse(pnorm(xb)>thresh,1,0)
+
+    # High Accuracy: 17% Error Rate
+    #xb <- model.matrix(Fatal ~ ., data= crash[testI,]) %*% mean.beta # High Acc.
+    #pred <- ifelse(xb>0,1,0)
+
     true <- crash$Fatal[testI]
     typy <- sum(true==1 & pred==1)
     tnpn <- sum(true==0 & pred==0)
     sens <- typy / sum(true==1)
     spec <- tnpn / sum(true==0)
+    err.rate <- mean(true!=pred)
 
-    list("MS.CI"=MS.CI,"signif"=signif.beta,"X"=X,"Y"=Y,"Sens"=sens,"Spec"=spec)
+    list("MS.CI"=MS.CI,"signif"=signif.beta,"X"=X,"Y"=Y,"Sens"=sens,"Spec"=spec,
+         "err.rate"=err.rate)
   }
 }  
 
 # Get Sens and Spec:
-one.sim(1000,cv=T,size=100)
-#N <- 100
-#f <- function(i) {print(i); one.sim(1000,cv=T,size=100)}
-#result <- foreach(j=1:N,.errorhandling="remove") %dopar% f(j)#one.sim(10000)
-#sens <- sapply(result,function(x) x$Sens)
-#spec <- sapply(result,function(x) x$Spec)
-#write.table(cbind(sens,spec),"out/results.txt",quote=F,row=F)
-##plot(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="red",cex=1,pch=20); abline(0,1)
-#lines(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="blue",cex=.5); abline(0,1)
+#one.sim(1000,cv=T,size=100)
+N <- 100
+thresh <- 1:100/100
+#N <- 1000
+#thresh <- rep(1:100/100,10)
+f <- function(i) {print(i); one.sim(1000,cv=T,size=100,thresh=thresh[i])}
+result <- foreach(j=1:N,.errorhandling="remove") %dopar% f(j)#one.sim(10000)
+sens <- sapply(result,function(x) x$Sens)
+spec <- sapply(result,function(x) x$Spec)
+err  <- sapply(result,function(x) x$err.rate)
+write.table(cbind(sens,spec),"out/results.txt",quote=F,row=F)
 
+# Plot ROC
+plot(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="blue",cex=.5,main="ROC"); abline(0,1)
+mod <- lm(sens ~ I(log(1.0001-spec)))
+h <- function(x,beta) beta[1] + beta[2] * log(x)
+xx <- seq(0.0001,1,length=100); yy <- NULL
+for (i in 1:length(xx)) yy[i] <- h(xx[i],mod$coef)
+lines(xx,yy)
 
-#lines(lowess(1-spec,sens))
+mean(err)
+
 #length(result)
 #mean(sens)
 #mean(1-spec)
