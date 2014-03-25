@@ -6,6 +6,37 @@ library(foreach)
 library(doMC)
 registerDoMC(16)
 
+# BIC function:
+bic <- function(y,x,b){
+  b <- as.matrix(b)
+  p <- length(b) - 1 
+  n <- length(y)
+  e <- y - x%*%b
+  rss <- t(e)%*%e 
+  -2*log(rss) + p*log(n)
+}
+
+bayes.fwd <- function(y=crash$Fatal,x=model.matrix(y~.,data=crash),p=ncol(x)){
+  M <- list(); length(M) <- p
+  Bic <- NULL
+  ind <- 1 
+  for (k in 0:(p-1)){
+    BIC <- NULL
+    for (i in 2:(p-k)){
+      res <- bayes.probit(100,y,x[,c(ind,i)]) 
+      b <- apply(res,2,mean)
+      BIC[k] <- bic(y,x,b)
+    }
+    new <- which.min(BIC)
+    ind <- c(ind,new)
+    Bic[k] <- BIC[new]
+    M[[k]] <- ind
+  }
+  list("bic"=Bic,"M"=M,"best.set"=M[which.min(Bic)])
+}
+
+mod.fwd <- bayes.fwd()
+
 # Libraries Need:
 options("scipen"=8)
 options("width"=120)
@@ -103,7 +134,8 @@ one.sim <- function(BB=10000,cv=F,size=0,PCR=F,M=0,thresh=.5) {
   # Now need to do PCR
 
   if (!cv) { 
-    list("MS.CI"=MS.CI,"signif"=signif.beta,"X"=X,"Y"=Y)
+    BIC <- bic(Y,X,MS.CI$Est)
+    list("MS.CI"=MS.CI,"signif"=signif.beta,"X"=X,"Y"=Y,"s2"=s2,"bic"=BIC,"beta"=result)
   } else {
 
     # Low Accuracy: 25% Error Rate
@@ -113,7 +145,7 @@ one.sim <- function(BB=10000,cv=F,size=0,PCR=F,M=0,thresh=.5) {
 
     # High Accuracy: 17% Error Rate
     #xb <- model.matrix(Fatal ~ ., data= crash[testI,]) %*% mean.beta # High Acc.
-    #pred <- ifelse(xb>0,1,0)
+    #pred <- ifelse(xb>thresh,1,0)
 
     true <- crash$Fatal[testI]
     typy <- sum(true==1 & pred==1)
@@ -123,34 +155,50 @@ one.sim <- function(BB=10000,cv=F,size=0,PCR=F,M=0,thresh=.5) {
     err.rate <- mean(true!=pred)
 
     list("MS.CI"=MS.CI,"signif"=signif.beta,"X"=X,"Y"=Y,"Sens"=sens,"Spec"=spec,
-         "err.rate"=err.rate)
+         "err.rate"=err.rate,"s2"=s2,"beta"=result)
   }
 }  
 
+#temp.1 <- one.sim(1000)
+
 # Get Sens and Spec:
-#one.sim(1000,cv=T,size=100)
 N <- 100
-thresh <- 1:100/100
-#N <- 1000
-#thresh <- rep(1:100/100,10)
-f <- function(i) {print(i); one.sim(1000,cv=T,size=100,thresh=thresh[i])}
-result <- foreach(j=1:N,.errorhandling="remove") %dopar% f(j)#one.sim(10000)
+thresh <- 1:N/N
+f <- function(i) {print(i); one.sim(100,cv=T,size=100,thresh=thresh[i])}
+result <- foreach(j=1:N,.errorhandling="remove") %dopar% f(j)
 sens <- sapply(result,function(x) x$Sens)
 spec <- sapply(result,function(x) x$Spec)
 err  <- sapply(result,function(x) x$err.rate)
 write.table(cbind(sens,spec),"out/results.txt",quote=F,row=F)
 
+plot.trace <- function(out,o=4) {
+  par(mfrow=c(o,1))    
+    for (i in 1:63){
+      #plot(temp.1$beta[,i],type='l',main=paste(expression(beta),i-1))
+      plot(out[,i],type='l',main=paste(expression(beta),i-1))
+      if (i%%o==0) {locator(1)}
+    }
+  par(mfrow=c(1,1))
+}
+
+plot.trace(result[[1]]$beta,4)
+
+
 # Plot ROC
 plot(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="blue",cex=.5,main="ROC"); abline(0,1)
+#lines(lowess(1-spec,sens))
 mod <- lm(sens ~ I(log(1.0001-spec)))
 h <- function(x,beta) beta[1] + beta[2] * log(x)
 curve(h(x,beta=mod$coef),fr=.0001,to=.97,add=T,col='blue',lwd=2)
 mean(err)
 
+
 # Find Best Threshold:
-#thr.result <- 
+opt.thresh <- which.min(sapply(result,function(x) x$err.rate)) / 100
 
 
+
+########################################################################
 # Get M for PCR:
 #m <- 1:60
 #g <- function(i) {print(i); one.sim(1000,cv=T,size=100,M=m[i],PCR=T)}
