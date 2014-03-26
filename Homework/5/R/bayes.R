@@ -16,26 +16,40 @@ bic <- function(y,x,b){
   -2*log(rss) + p*log(n)
 }
 
-bayes.fwd <- function(y=crash$Fatal,x=model.matrix(y~.,data=crash),p=ncol(x)){
+bayes.fwd <- function(y=crash$Fatal,x=model.matrix(y~.,data=crash),p=ncol(x)-1){
   M <- list(); length(M) <- p
   Bic <- NULL
   ind <- 1 
-  for (k in 0:(p-1)){
+  pool <- 2:(p+1)
+  for (k in 1:p){
     BIC <- NULL
-    for (i in 2:(p-k)){
-      res <- bayes.probit(100,y,x[,c(ind,i)]) 
+
+    # Sequential
+    #for (i in pool){
+    #  res <- bayes.probit(100,y,x[,c(ind,i)]); cat(paste(k,i,collapse=""))
+    #  b <- apply(res,2,mean)
+    #  BIC[k] <- bic(y,x[,c(ind,i)],b)
+    #}
+
+    # Parallel
+    one.it <- function(i) {  
+      res <- bayes.probit(100,y,x[,c(ind,i)]); cat(paste(k,i,collapse=""))
       b <- apply(res,2,mean)
-      BIC[k] <- bic(y,x,b)
+      BIC[k] <- bic(y,x[,c(ind,i)],b)
     }
-    new <- which.min(BIC)
+    BIC <- as.vector(foreach(i=pool,.combine=rbind) %dopar% one.it(i))
+
+    new <- pool[which.min(BIC)]
     ind <- c(ind,new)
     Bic[k] <- BIC[new]
+    #M[[k+1]] <- ind
     M[[k]] <- ind
+    pool <- pool[-which.min(BIC)]
   }
   list("bic"=Bic,"M"=M,"best.set"=M[which.min(Bic)])
 }
 
-mod.fwd <- bayes.fwd()
+#mod.fwd <- bayes.fwd()
 
 # Libraries Need:
 options("scipen"=8)
