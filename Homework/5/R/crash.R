@@ -136,11 +136,11 @@ auc <- function(sens,spec) {
 
   # Find Best Threshold:
   plot.thresh <- function() {
-    plot(1:B/B,err,type='l',main="Rates vs. Thresholds",
-         xlim=c(0,1),ylim=c(0,1),xlab="Threshold", ylab="Rate",col='red',lwd=3)
+    plot(1:B/B,err,type='l',main="Error Rates vs. Thresholds",
+         xlim=c(0,1),ylim=c(0,1),xlab="Threshold", ylab="Error Rate",col='red',lwd=3)
     lines(1:B/B,1-sens,col="green",lwd=3) #false negative - both have n's
     lines(1:B/B,1-spec,col="blue", lwd=3) #false positive - both have p's
-    legend("top",legend=c("Error Rate","False Positive Rate","False Negative Rate",
+    legend("top",legend=c("Overall Error Rate","False Positive Rate","False Negative Rate",
                           paste("Optimal Threshold =",opt.thresh)),
                           col=c("red","blue","green","white"),lwd=c(3,3,3,NULL))
   }
