@@ -15,7 +15,7 @@
 \usecolortheme{seahorse}         % Determines the Color
 
 \title{Car Crash - Logistic Regression}
-\logo{\includegraphics[width=1cm,height=1cm,keepspectration]{logo.png}}
+%\logo{\includegraphics[width=1cm,height=1cm,keepspectration]{logo.png}}
 
 \author[Arthur Lui]{Arthur L. Lui}
 \institute[Brigham Young University]{
@@ -61,21 +61,65 @@
   \section{Introduction}
     \frame{
       \frametitle{Introduction}
+      \begin{itemize}
+        \item More than 34,000 motor vehicle deaths in nation in 2012
+        \item FHWA reponsible for improving roadway safety
+        \item FHWA created FARS to collect relevant fatality data
+        \item Goal: Understand relationship between independent variables 
+                    and probability of fatality
+      \end{itemize}
     }
 
   \section{Data}
     \frame{
       \frametitle{Data}
-    }
+      \begin{center}
+      \tiny{\begin{tabular}{ll}
+        \textbf{Response} & \textbf{Description}\\
+        \hline
+        Fatal & 1 - death in vehicle, 2 - no death in vehicle\\
+        \hline
+        &\\
+        \textbf{Variable} & \textbf{Description}\\
+        \hline
+        Year            &  Year of accident\\
+        DOW             &  Day of the week (1 =Sunday)\\
+        Hour            &  Hour at the time of accident\\
+        Mod             &  year Model year of vehicle involved in accident\\
+        Height          &  Driver height\\
+        Weight          &  Driver weight\\
+        DWI             &  Number of previous DWIs of driver\\
+        Age             &  Age of driver\\
+        Car.Type        &  Type of vehicle\\
+        Day             &  Day of the month\\
+        Drugs           &  Were drugs involved?\\
+        Drink           &  Had the driver been drinking?\\
+        Light           &  Light condition at time of accident\\
+        Month           &  Month of accident\\
+        Belt            &  Type of restraint used\\
+        Route           &  Type of highway\\
+        Sex             &  Gender of driver\\
+        Speed.Related   &  Was the accident speed related?\\
+        Speed.Limit     &  Posted speed limit\\
+        Road.Conditions &  Condition of road at time of accident\\
+        Road.Type       &  Road type\\
+        Distracted      &  Was the driver distracted?\\
+        \hline
+      \end{tabular}
+    }\end{center}}
 
   
   \section{Model}
     \frame{
       \frametitle{Model}
+      Logistic Model
     }
 
     \frame{
       \frametitle{Model Justification}
+      \begin{itemize}
+        \item $Y|X$ not normal
+      \end{itemize}
     }
 
 
@@ -94,6 +138,12 @@
     \frame{
       \frametitle{Conclusions}
     }
+
+  \section{Future}
+    \frame{
+      \frametitle{Future}
+    }
+
 
  
 \end{document}
