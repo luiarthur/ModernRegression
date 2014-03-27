@@ -196,6 +196,10 @@ auc <- function(sens,spec) {
   sink("out/summary.tex")
     xtable(mod.table)
   sink()
+  
+  sink("out/vif.tex")
+    xtable(vifs)
+  sink()  
 
   ## PLOTS: ##########
   #plot.thresh()     #
