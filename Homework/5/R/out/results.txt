@@ -1,5 +1,14 @@
 [1] "AUC:  0.90870854951862"
 [1] "Opt.Thresh:  0.474"
+                  GVIF Df GVIF^(1/(2*Df))
+Drugs         1.117620  2        1.028190
+Belt          1.239451  9        1.011997
+Speed.Related 1.158237  2        1.037407
+Speed.Limit   1.143630  1        1.069406
+Drink         1.251142  1        1.118545
+Light         1.375841  5        1.032421
+Distracted    1.085818  2        1.020797
+Mod_year      1.055198  1        1.027228
 
 Call:
 glm(formula = Fatal ~ Drugs + Belt + Speed.Related + Speed.Limit + 

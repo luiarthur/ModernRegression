@@ -189,6 +189,7 @@ auc <- function(sens,spec) {
   sink("out/results.txt")
     paste("AUC: ",AUC)
     paste("Opt.Thresh: ",opt.thresh)
+    vifs
     summary(mod.s)
   sink() 
   
