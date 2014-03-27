@@ -4,6 +4,7 @@
 
 rm(list=ls())
 library(car) # vif
+library(xtable)
 
 # Data Cleaning:
 crash <- read.csv("../Data/crash.csv")
@@ -20,10 +21,10 @@ N <- nrow(crash)
 #colnames(crash)
 #str(crash)
 
-my.predict <- function(b,x,thresh=.5){
+my.predict <- function(b,x,thresh=.5,predict.01=T){
   pred <- x %*% b
   p <- exp(pred)/(1+exp(pred))
-  p <- ifelse(p>thresh,1,0)
+  if(predict.01) p <- ifelse(p>thresh,1,0)
   p
 }
   
@@ -57,7 +58,8 @@ auc <- function(sens,spec) {
                 k=log(N))
 
   # The Model:
-  summary(mod.s)$call
+  mod.formula <- summary(mod.s)$call
+  mod.table <- summary(mod.s)[[12]]
   vifs <- vif(mod.s)
 
 # Cross Validate:  
@@ -103,6 +105,7 @@ auc <- function(sens,spec) {
 
   # MAIN: ######################################
   B <- 500 # Number of thresholds chosen in (0,1)
+  R <- 10  # Numner of iterations for ROC curves
 
   one.sim <- function(y) {
     result <- big.sim(B=B,style=3)
@@ -112,12 +115,14 @@ auc <- function(sens,spec) {
     list("result"=result,"sens"=sens,"spec"=spec,"err"=err)
   }
 
-  results <- list(); length(results) <- 10 # 10 iterations - compute 10 ROC curves
+  results <- list(); length(results) <- R # 10 iterations - compute 10 ROC curves
   results <- lapply(results,one.sim)
   
-  sens <- Reduce("+",lapply(results,function(x)x$sens))/10
-  spec <- Reduce("+",lapply(results,function(x)x$spec))/10
-  err  <- Reduce("+",lapply(results,function(x)x$err ))/10
+  sens <- Reduce("+",lapply(results,function(x)x$sens)) / R
+  spec <- Reduce("+",lapply(results,function(x)x$spec)) / R
+  err  <- Reduce("+",lapply(results,function(x)x$err )) / R
+  opt.thresh <- which.min(err) / B
+  AUC <- auc(sens,spec)
 
   #write.table(cbind(sens,spec),"out/results.txt",quote=F,row=F)
   
@@ -126,22 +131,81 @@ auc <- function(sens,spec) {
     plot(1-spec,sens,xlim=c(0,1),ylim=c(0,1),col="blue",cex=.5,main="ROC Curve",
          type="l",lwd=3)
     abline(0,1)
-    AUC <- auc(sens,spec)
     legend("bottomright",legend=paste("AUC =",round(AUC,3)))
   }
 
   # Find Best Threshold:
   plot.thresh <- function() {
-    plot(1:B/B,err,type='l',main="Error Rates vs. Thresholds",
-         xlim=c(0,1),ylim=c(0,1),xlab="Threshold", ylab="Error Rate",col='red',lwd=3)
+    plot(1:B/B,err,type='l',main="Rates vs. Thresholds",
+         xlim=c(0,1),ylim=c(0,1),xlab="Threshold", ylab="Rate",col='red',lwd=3)
     lines(1:B/B,1-sens,col="green",lwd=3) #false negative - both have n's
     lines(1:B/B,1-spec,col="blue", lwd=3) #false positive - both have p's
-    opt.thresh <- which.min(err) / B
     legend("top",legend=c("Error Rate","False Positive Rate","False Negative Rate",
                           paste("Optimal Threshold =",opt.thresh)),
                           col=c("red","blue","green","white"),lwd=c(3,3,3,NULL))
   }
-  # Residual Plots
+
+  # Plot Certain Variables:
+  # Look at Drugs, Belt, Speed, Drink, Light, Distracted, Mod_year
+    X <- model.matrix(Fatal~.,data=crash)
+
+    # Drugs: No,DrugsUnknown(21),DrugsYes(22)
+    x00 <- x01 <- xdd <- X[1,names(coef(mod.s))]
+    x00[16] <- 1; # Drink
+    x01[16] <- 0 # no Drink
+    x00[c(21,22)] <- 0 # no Drugs
+    x01[21] <- 0; x01[22] <- 1 # Drugs
+    xdd <- x01
+    xdd[16] <- 1
+
+    p.drugs <- NULL
+    p.drink <- NULL
+    p.dd <- NULL
+
+    speeds <- 15:70
+    x00[16] <- 0 # 16 is Drink
+    for (i in 1:length(speeds)) {
+      x01[15] <- x00[15] <- xdd[15] <- speeds[i] #15 is Speed.Limit
+
+      p.drugs[i] <- my.predict(coef(mod.s),x01,thresh=opt.thresh,pred=F) 
+      p.drink[i] <- my.predict(coef(mod.s),x00,thresh=opt.thresh,pred=F) 
+      p.dd[i]    <- my.predict(coef(mod.s),xdd,thresh=opt.thresh,pred=F) 
+
+    }
+
+    plot.drink.drug <- function() {
+      plot(15:70,p.drugs,type='l',col="red",lwd=3,ylim=c(0,1),xlab="Speed Limit",
+           ylab="Probability of Dying",main="Probability of Dying vs. Speed Limit")
+      lines(15:70,p.drink,col='blue',lwd=3)
+      lines(15:70,p.dd,col='green',lwd=3)
+      legend("bottomright",legend=c("Drugs","Alcohol","Drugs & Alcohol"),
+             col=c("red","blue","green"),lwd=3)
+    }
+
+  pdf("out/roc.pdf"); plot.roc(); dev.off()
+  pdf("out/thresh.pdf"); plot.thresh(); dev.off()
+  pdf("out/dd.pdf"); plot.drink.drug(); dev.off()
+  
+  sink("out/results.txt")
+    paste("AUC: ",AUC)
+    paste("Opt.Thresh: ",opt.thresh)
+    summary(mod.s)
+  sink() 
+  
+  sink("out/summary.tex")
+    xtable(mod.table)
+  sink()
+
+  ## PLOTS: ##########
+  #plot.thresh()     #
+  #plot.roc()        #
+  #plot.drink.drug() #
+  ####################
+
+
+  # Random Stuff: ###############################################################
+
+  # Residual Plots???
 
   # No Patterns when checking for collinearity
   #plot(crash$Speed.Related,crash$Mod_year,
@@ -150,11 +214,6 @@ auc <- function(sens,spec) {
   #     xlab="Speed Limit",ylab="Model Year",main="Model Year vs. Speed Limit")
 
   
-  # PLOTS:
-  #plot.thresh()
-  #plot.roc()
-
-  # Random Stuff: ###############################################################
   # Lasso:
   #testI <- sample(1:N,N%/%10,replace=F)
   #l.y <- crash$Fatal
