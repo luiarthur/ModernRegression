@@ -1,0 +1,49 @@
+[1] "AUC:  0.90870854951862"
+[1] "Opt.Thresh:  0.474"
+
+Call:
+glm(formula = Fatal ~ Drugs + Belt + Speed.Related + Speed.Limit + 
+    Drink + Light + Distracted + Mod_year, family = binomial, 
+    data = crash)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-3.8497  -0.5723   0.1403   0.4856   2.5624  
+
+Coefficients:
+                                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                          98.37015   26.63563   3.693 0.000221 ***
+DrugsUnknown                          2.52553    0.22926  11.016  < 2e-16 ***
+DrugsYes (drugs involved)             0.64314    0.28110   2.288 0.022141 *  
+BeltLap Belt Only Used               -3.02258    1.64833  -1.834 0.066695 .  
+BeltNo Helmet                        -0.45204    1.75145  -0.258 0.796335    
+BeltNone Used-Motor Vehicle Occupant -0.48924    1.29235  -0.379 0.705009    
+BeltNot Applicable                   -2.21128    1.72880  -1.279 0.200868    
+BeltNot Reported                     -3.26475    1.72348  -1.894 0.058188 .  
+BeltOther Helmet                      0.80618    1.35223   0.596 0.551050    
+BeltShoulder and Lap Belt Used       -2.74781    1.25111  -2.196 0.028071 *  
+BeltShoulder Belt Only Used          -1.78908    1.86973  -0.957 0.338635    
+BeltUnknown                          -2.12630    1.29905  -1.637 0.101671    
+Speed.RelatedUnknown                  2.10705    0.51316   4.106 4.02e-05 ***
+Speed.RelatedYes                      1.19827    0.19450   6.161 7.24e-10 ***
+Speed.Limit                           0.04448    0.00697   6.381 1.76e-10 ***
+DrinkYes                              1.46394    0.20502   7.141 9.30e-13 ***
+LightDark - Not Lighted               0.89788    0.23449   3.829 0.000129 ***
+LightDawn                             2.21488    0.55079   4.021 5.79e-05 ***
+LightDaylight                         1.83514    0.23537   7.797 6.35e-15 ***
+LightDusk                             1.07505    0.73100   1.471 0.141381    
+LightUnknown                          0.18839    1.50058   0.126 0.900092    
+DistractedNot Distracted              1.31296    0.30945   4.243 2.21e-05 ***
+DistractedUnknown                     1.66623    0.32348   5.151 2.59e-07 ***
+Mod_year                             -0.05083    0.01327  -3.829 0.000128 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1792.0  on 1360  degrees of freedom
+Residual deviance:  984.1  on 1337  degrees of freedom
+AIC: 1032.1
+
+Number of Fisher Scoring iterations: 6
+
