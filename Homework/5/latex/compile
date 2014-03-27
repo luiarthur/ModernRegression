@@ -3,4 +3,4 @@
 #system("cd ../; R CMD BATCH cars.R; cd latex")
 system("pdflatex crash.tex")
 system("rm *.log *.aux *.snm *.toc *out")
-system("firefox crash.pdf &")
+system("evince crash.pdf &")
