@@ -20,6 +20,6 @@ rm(list=ls())
   plot(Number,Month)
   repeat.ind <- NULL
   for (i in 1:nrow(dat)) {
-    for (j in 1:nrow(dat)) {
+    for (j in i:nrow(dat)) {
     }
   }
