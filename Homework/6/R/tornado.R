@@ -9,6 +9,7 @@ rm(list=ls())
   # Remove repeating observations
   dat <- read.csv("../Data/tornados.csv")
   dat <-rmCol(dat,"Year")
+  dat$Fscale <- as.factor(dat$Fscale)
   # dim(dat) # 957 x 17
 
   #"Number"     "Month"      "Day"        "Date"       "Time"      
@@ -34,26 +35,27 @@ rm(list=ls())
   library(doMC)
   registerDoMC(5)
 
+  #small.dat <- rmCol(dat,c("Number","State","Date"))
+  small.dat <- rmCol(dat,c("Number","State","Date","Month","Day","Time",
+                           "StartLat","StartLon","EndLat","EndLon"))
+  #small.dat <- getCol(dat,c("Fscale","Injuries","Fatalities","Loss",
+  #                          "CropLoss","Length","Width"))
+
   one.it <- function(m) {
-    #small.dat <- rmCol(dat,c("Number","State","Date"))
-    small.dat <- rmCol(dat,c("Number","State","Date","Month","Day","Time",
-                             "StartLat","StartLon","EndLat","EndLon"))
-    #small.dat <- getCol(dat,c("Fscale","Injuries","Fatalities","Loss",
-    #                          "CropLoss","Length","Width"))
-    forest <- randomForest(as.factor(Fscale) ~ .,data=small.dat,
+    forest <- randomForest(Fscale ~ .,data=small.dat,
                            subset=trainI,mtry=m,importance=T,ntree=1000)
-    y.hat <- as.numeric(predict(forest,newdata=small.dat[-trainI,]))
-    acc <- mean(y.hat==dat$Fscale[-trainI])
+    y.hat <- predict(forest,newdata=small.dat[-trainI,])
+    err <- mean(y.hat!=dat$Fscale[-trainI])
     
-    list("forest"=forest,"acc"=acc,"m"=m,"true"=dat$Fscale[-trainI],"pred"=y.hat)
+    list("forest"=forest,"err"=err,"m"=m,"true"=dat$Fscale[-trainI],"pred"=y.hat)
   }
    
-  result <- foreach(i=1:5) %dopar% one.it(i)
+  result <- foreach(i=1:(ncol(small.dat)-1)) %dopar% one.it(i)
   forests <- lapply(result,function(x) x$forest)
-  (acc <- sapply(result,function(x) x$acc))
+  (err.rate <- sapply(result,function(x) x$err))
   
   importance(forests[[1]])
   varImpPlot(forests[[1]])
   plot(forests[[1]])
-  forests[[1]]
+  forests[[2]]
 
