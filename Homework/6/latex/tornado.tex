@@ -18,12 +18,12 @@
 
 \title{Tornado - Random Forests}
 %\logo{\includegraphics[width=1cm,height=1cm,keepspectration]{logo.png}}
-
-\author[Arthur Lui\\Sorah Kang]{Arthur Lui \& Sorah Kang}
+\author[Arthur Lui\\Sorah Kang]{Arthur Lui \\ Sorah Kang}
 \institute[Brigham Young University]{
   Department of Statistics\\
   Brigham Young University
 }
+
 %Setting %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %- 5pts Problem Statement and Understanding 
@@ -96,39 +96,66 @@
       \frametitle{Model Assumptions}
         - Not Many
     }
-  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+%       - Show your results? (But how?)
+%       - How would a scientist use our model? (Using predictors and find Prediction)
+%       - Plot while holding other variables constant, and changing Loss,
+%         how the predicted Fscale changes.
+%       - Include a picture of a forest  
+%       - Include a tree. Using our model and a tree. 
+%           (2 tress: Width and Loss, Width Length)
+%       - Include Variable Importance    
+%       - Show confusion matrix. Point out how Fscale classification error 
+%         increases with Fscale.
 
   \section{Results}
-    \frame{
-      \frametitle{Results}
-        - Show your results? (But how?)
-        - How would a scientist use our model? (Using predictors and find Prediction)
-        - Plot while holding other variables constant, and changing Loss,
-          how the predicted Fscale changes.
-        - Include a picture of a forest  
-        - Include a tree. Using our model and a tree. 
-            (2 tress: Width and Loss, Width Length)
-        - Include Variable Importance    
-        - Show confusion matrix. Point out how Fscale classification error 
-          increases with Fscale.
+     \frame{
+      \frametitle{Most Important Variables}
+      \center{\includegraphics[scale=.35]{out/importance.pdf}}\\
+      \small{The most important variables in predicting Fscale are: 
+             Loss, Width, and Length.}
     }
+   
+    \frame{
+      \frametitle{Tree}
+      % I need some examples for each Fscale.
+      \center{\includegraphics[scale=.2]{out/oneTree.pdf}}
+      \small{How would a scientist use this model?}
+    }
+
+    \frame{
+      \frametitle{Confusion Matrix}
+      \input{out/confusion.tex}
+      \small{Note: Error rate is lower for small Fscales}
+    }
+
 
   \section{Conclusions}
     \frame{
       \frametitle{Conclusions}
-        - black box. predicts well? 70\%
-        - Objective, but uses past data.
+        \begin{itemize}
+          \item Error Rate $\approx$ 26\%
+          \item Objective and takes into account past data
+          \item Predicts low Fscales well (because more data)
+        \end{itemize}
     }
 
   \section{Future}
     \frame{
       \frametitle{Future}
-        - Need more data about Fscale = 4.
-        - Compare different methods. 
+        \begin{itemize}
+          \item Need more data for Fscale = 4
+          \item Compare different methods (e.g. trees, bagging, etc.)
+        \end{itemize}  
     }
 
   \section{Teamwork}
     \frame{
       \frametitle{Teamwork}
+        \begin{itemize}
+          \item Did Analysis together
+          \item Sorah:  Introduction, Model, Data
+          \item Arthur: Results, Conclusions, Future
+        \end{itemize}
     }
 \end{document}
