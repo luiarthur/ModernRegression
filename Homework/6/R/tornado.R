@@ -6,6 +6,7 @@ rm(list=ls())
   getCol <- function(M,cn) M[, c(which(is.element(colnames(M),cn)))]
   
 # Clean Data:
+  # Check for collinearity:
   # Remove repeating observations
   Dat <- read.csv("../Data/tornados.csv")
   Dat <-rmCol(Dat,"Year")
@@ -17,13 +18,9 @@ rm(list=ls())
   #"CropLoss"   "StartLat"   "StartLon"   "EndLat"     "EndLon"    
   #"Length"     "Width"
 
-  # What to do about repeating tornado Number?
   #dat <- subset(Dat,!duplicated(Dat$Number))
-  dat <- Dat[-c(120,122,113,116,158,168,148,149,400,187,188,200,202,209,179,180,936),]
+  dat <-Dat[-c(120,122,113,116,158,168,148,149,400,187,188,200,202,209,179,180,936),]
 
-  #attach(dat)
-
-  # Check for collinearity:
 
 ####################################################################
   # Random Forest:
@@ -56,15 +53,34 @@ rm(list=ls())
    
   result <- foreach(i=1:(ncol(small.dat)-2)) %dopar% one.it(i)
   forests <- lapply(result,function(x) x$forest)
-  (err.rate <- sapply(result,function(x) x$err))
-  (best.m <- which.min(err.rate))
+  err.rate <- sapply(result,function(x) x$err)
+  best.m <- which.min(err.rate)
   
-  forest <- randomForest(Fscale ~ .,data=small.dat,mtry=best.m,importance=T)
+  #forest <- randomForest(Fscale ~ .,data=small.dat,mtry=best.m,importance=T)
+  forest <- randomForest(Fscale ~ .,data=small.dat,mtry=3,importance=T)
+  # mtry=3=sqrt(P)
 
-  #(confusion <- rmCol(forest$confusion,"class.error"))
-  #1 - diag(confusion) / apply(confusion,1,sum)
-  #importance(forests[[1]])
-  ##varImpPlot(forests[[1]])
-  #plot(forests[[1]])
-  #forests[[2]]
+  importance(forests[[1]])
+  confusion <- rmCol(forest$confusion,"class.error")
+  varImpPlot(forests[[1]])
+  plot(forests[[1]])
+  
+  sink("../latex/out/output.txt")
+    cat("\n"); paste("Error Rate:"); err.rate
+    cat("\n"); paste("Best m:"); best.m
+    cat("\n"); paste("Variable Importance:");importance(forests[[1]])
+  sink()
 
+ #TREE: #########################################################################
+ library(tree)
+ one.tree <- tree(Fscale ~ ., data=small.dat[trainI,])
+
+ pdf("../latex/out/oneTree.pdf")
+  plot(one.tree); text(one.tree)
+ dev.off()
+ pdf("../latex/out/forest.pdf")
+  plot(forests[[1]])
+ dev.off()
+ pdf("../latex/out/importance.pdf")
+  varImpPlot(forests[[1]])
+ dev.off()

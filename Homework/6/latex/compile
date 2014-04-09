@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
 pdflatex tornado.tex
-rm *.log *.aux *.snm *.toc *out
+rm *.log *.aux *.snm *.toc *.out
 firefox crash.pdf &
 #evince crash.pdf &
