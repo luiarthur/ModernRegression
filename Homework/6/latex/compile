@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 pdflatex tornado.tex
 rm *.log *.aux *.snm *.toc *.out
