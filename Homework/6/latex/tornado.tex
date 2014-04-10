@@ -12,6 +12,9 @@
 \def\imp{\Rightarrow}
 \newcommand\tc[1]{\textcolor{red}{\textbf{#1}}}
 
+% Sorah Used This:
+\usepackage{xcolor}
+
 % See this for more themes and colors: http://www.hartwork.org/beamer-theme-matrix/
 \usepackage{beamerthemeHannover} % Determines the Theme
 \usecolortheme{seahorse}         % Determines the Color
@@ -61,41 +64,104 @@
   \frame{\titlepage}
 
   \section{Introduction} % Sorah
-    \frame{
-      \frametitle{Introduction}
-    }
+      \frame{
+        \frametitle{Introduction}
+        \begin{center}
+        \includegraphics[height=7cm]{out/damage.jpg}
+        \end{center}
+      }
+      
+      \frame{
+      \frametitle{Goal}
+      The goal of this analysis is to develop an objective model for 
+      classifying tornados
+      }
 
   \section{Data} % Sorah
-    \frame{
-      \frametitle{Data}
-        Show something about repeated observations
-        How many observations for each Fscale
-    }
+      \frame{
+        \frametitle{Data}
+        % where the data is from, what variables
+        Data on tornados in 2012 from the Storm Prediction Center (SPC)
+        \begin{itemize}
+        \item Number - SPC Tornado Number
+        \item Month - Numeric Month Value
+        \item Day - Day of the Month
+        \item Time - Time Tornado First Reported
+        \item Fscale - Fujita Scale
+        \item Loss - Rounded Total Dollar Property Loss (in millions)
+        \item CropLoss - Rounded Total Dollar Crop Loss (in millions)
+        \item Length - Length of impact (in miles)
+        \item Width - Width of impact (in yards)
+        \end{itemize}
+      }
+      \frame{
+        \frametitle{Data}
+          % some graphs of the data
+          \begin{center}
+          \includegraphics[height=6cm]{out/dat.pdf}
+          \end{center}
+          % table of how many obs per fscale
+          \begin{table}[ht]
+          \centering
+          \begin{tabular}{l r r r r r r} \hline
+          F-Scale & 0   & 1   & 2   & 3   & 4   & 5 \\ \hline
+          Freq    & 578 & 242 & 100 & 32  & 5   & 0 \\  \hline
+          \end{tabular}
+          \end{table}
+      }
 
-    \frame{ % Sorah
-      \frametitle{Data Cleaning}
-    }
-  
-  \section{Model: Random Forests} % Sorah
-    \frame{
-      \frametitle{Model}
-        Advantages:
-                    p. 315,
-                    Good for nonlinear, 
-                    prediction, 
-                    decreases variance coz less correlated
-    }
+      \frame{ % Sorah
+        \frametitle{Data Cleaning}
+        % give an example of repeated observations
+        There were $23$ tornados that were repeated
+        \pause
+        \begin{table}[ht]
+        \centering
+        \begin{tabular}{r l l l l l l l} \hline
+            &Number &Date    &State &F-scale &Injuries &Loss &Length\\ \hline
+        120 &359692 &2/29/12 &IL    &2       &0        &0.05 &8.41\\
+        {\color{red}121} &{\color{red}359692} &{\color{red}2/29/12} &{\color{red}IL}    
+        &{\color{red}2}       &{\color{red}5}        &{\color{red}0.30} &{\color{red}25.12}\\
+        122 &359692 &2/29/12 &KY    &2       &5        &0.25 &26.71\\ \hline
+        \end{tabular}
+        \end{table}
+      }
+   
+    \section{Model: Random Forests} % Sorah
+      \frame{
+        \frametitle{Model}
+        Random Forest - The idea is to create a multitude of trees (forest)
+        \begin{enumerate}
+        \item Take a bootstrap sample of size $n$.
+        \item At each split, randomly sample $m<P$ variables
+        \item Build a tree based on each set
+          \begin{enumerate}
+          \item At each node, identify variable that has most correlation with output
+          \item Identify a cut point that leads to the greatest reduction in error
+          \end{enumerate}
+        \end{enumerate}
+      }
 
-    \frame{
-      \frametitle{Random Forests}
-        - Overview how to fit model (Binary Partitioning)
-        - How we chose m (cv)
-    }
+      \frame{
+        \frametitle{Random Forests}
+        \begin{itemize}
+        \item[+] Better predictive power than trees
+          \begin{itemize}
+          \item Choosing a subset of variables decorrelates the trees
+          \end{itemize}
+        \item[+] Gives us an objective way of classifying tornados
+        \item[-] However, random forests are not very interpretable
+        \end{itemize}
+      }
 
-    \frame{
-      \frametitle{Model Assumptions}
-        - Not Many
-    }
+      \frame{
+        \frametitle{Model Assumptions}
+          - For classification trees, we assume data is non-linear
+          \begin{center}
+          \includegraphics[height=7cm]{out/nonlinear.pdf}
+          \end{center}
+      }
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
 %       - Show your results? (But how?)
 %       - How would a scientist use our model? (Using predictors and find Prediction)
