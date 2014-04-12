@@ -73,25 +73,26 @@
       
       \frame{
       \frametitle{Goal}
-      The goal of this analysis is to develop an objective model for 
-      classifying tornados
+        The goal of this analysis is to develop an objective model for 
+        classifying tornados
       }
 
   \section{Data} % Sorah
       \frame{
         \frametitle{Data}
         % where the data is from, what variables
+        % Note that Fscale are subjective and covariates are objective
         Data on tornados in 2012 from the Storm Prediction Center (SPC)
         \begin{itemize}
-        \item Number - SPC Tornado Number
-        \item Month - Numeric Month Value
-        \item Day - Day of the Month
-        \item Time - Time Tornado First Reported
-        \item Fscale - Fujita Scale
-        \item Loss - Rounded Total Dollar Property Loss (in millions)
-        \item CropLoss - Rounded Total Dollar Crop Loss (in millions)
-        \item Length - Length of impact (in miles)
-        \item Width - Width of impact (in yards)
+          \item Fscale - Fujita Scale (Response - subjective)
+          \item Number - SPC Tornado Number
+          \item Month - Numeric Month Value
+          \item Day - Day of the Month
+          \item Time - Time Tornado First Reported
+          \item Loss - Rounded Total Dollar Property Loss (in millions)
+          \item CropLoss - Rounded Total Dollar Crop Loss (in millions)
+          \item Length - Length of impact (in miles)
+          \item Width - Width of impact (in yards)
         \end{itemize}
       }
       \frame{
@@ -113,17 +114,19 @@
       \frame{ % Sorah
         \frametitle{Data Cleaning}
         % give an example of repeated observations
-        There were $23$ tornados that were repeated
+        $23$ tornados were repeated in the data
         \pause
         \begin{table}[ht]
         \centering
-        \begin{tabular}{r l l l l l l l} \hline
-            &Number &Date    &State &F-scale &Injuries &Loss &Length\\ \hline
-        120 &359692 &2/29/12 &IL    &2       &0        &0.05 &8.41\\
-        {\color{red}121} &{\color{red}359692} &{\color{red}2/29/12} &{\color{red}IL}    
-        &{\color{red}2}       &{\color{red}5}        &{\color{red}0.30} &{\color{red}25.12}\\
-        122 &359692 &2/29/12 &KY    &2       &5        &0.25 &26.71\\ \hline
-        \end{tabular}
+        \resizebox{\columnwidth}{!}{%
+          \begin{tabular}{r l l l l l l l} \hline
+              &Number &Date    &State &F-scale &Injuries &Loss &Length\\ \hline
+          120 &359692 &2/29/12 &IL    &2       &0        &0.05 &8.41\\
+          {\color{red}121} &{\color{red}359692} &{\color{red}2/29/12} &{\color{red}IL}    
+          &{\color{red}2}       &{\color{red}5}        &{\color{red}0.30} &{\color{red}25.12}\\
+          122 &359692 &2/29/12 &KY    &2       &5        &0.25 &26.71\\ \hline
+          \end{tabular}
+        }
         \end{table}
       }
    
@@ -156,9 +159,9 @@
 
       \frame{
         \frametitle{Model Assumptions}
-          - For classification trees, we assume data is non-linear
+          For classification trees, we assume data is non-linear
           \begin{center}
-          \includegraphics[height=7cm]{out/nonlinear.pdf}
+            \includegraphics[height=7cm]{out/nonlinear.pdf}
           \end{center}
       }
 

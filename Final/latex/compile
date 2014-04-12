@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [$@ == ""]
+  then
+    stuff="*"
+  else
+    stuff="$@"
+fi
+
+`pdflatex $stuff.ly`
+rm *.log *.aux
+`firefox $stuff.pdf &`
+
