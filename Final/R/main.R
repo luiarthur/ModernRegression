@@ -77,7 +77,8 @@ rm(list=ls())
     if (subset) {
       n <- nrow(pop[[j]])
       trainI <- sample(1:n,round(n*.8))
-      mod <- gam(Germ~s(Chill),data=pop[[j]][trainI,],family=binomial)
+      #mod <- gam(Germ~s(Chill),data=pop[[j]][trainI,],family=binomial)
+      mod <- gam(Germ~ns(Chill,3),data=pop[[j]][trainI,],family=binomial)
       predLO <- predict(mod,newdata=pop[[j]][-trainI,-3])
       pred <- exp(predLO) / (1 + exp(predLO))
       predYN <- ifelse(pred>.5,"Y","N")
@@ -89,9 +90,11 @@ rm(list=ls())
     } else {
       mod <- NULL
       if (j > 0) {
-        mod <- gam(Germ~s(Chill),data=pop[[j]],family=binomial)
+        #mod <- gam(Germ~s(Chill),data=pop[[j]],family=binomial)
+        mod <- gam(Germ~ns(Chill,3),data=pop[[j]],family=binomial)
       } else {
-        mod <- gam(Germ~s(Chill),data=dat,family=binomial)
+        #mod <- gam(Germ~s(Chill),data=dat,family=binomial)
+        mod <- gam(Germ~ns(Chill,3),data=dat,family=binomial)
       }
       xo  <- matrix(seq(0,12,length=1000)); colnames(xo) <- "Chill"
       predLO <- predict(mod,newdata=data.frame(xo))
@@ -127,8 +130,10 @@ rm(list=ls())
   temp$Pop <-as.factor(0)
   bigD <- rbind(dat,temp)
   #temp <- glm(Germ~Chill+Pop,data=dat,family=binomial)
-  fullMod  <- gam(Germ~s(Chill)+Pop,data=dat,family=binomial)
-  fullModI <- gam(Germ~s(Chill)+Pop+s(Chill)*Pop,data=bigD,family=binomial)
+  #fullMod  <- gam(Germ~s(Chill)+Pop,data=dat,family=binomial)
+  #fullModI <- gam(Germ~s(Chill)+Pop+s(Chill)*Pop,data=bigD,family=binomial)
+  #fullMod  <- gam(Germ~s(Chill)+Pop,data=dat,family=binomial)
+  fullModI <- glm(Germ~ns(Chill,3)+Pop+ns(Chill,3)*Pop,data=bigD,family=binomial)
   
   plot.fm <- function(i=1,compare=F,interaction=F) {
     par(mfrow=c(6,2),mar=rep(3,4))
@@ -157,7 +162,7 @@ rm(list=ls())
     }
     par(mfrow=c(1,1))
   }
-  #plot.fm(compare=T,interaction=T)
+  plot.fm(compare=T,interaction=T)
 
   #compare.plot <- function() {
   #  for (i in 1:11) {
