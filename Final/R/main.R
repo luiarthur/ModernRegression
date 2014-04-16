@@ -4,6 +4,12 @@ rm(list=ls())
   rmCol  <- function(M,cn) M[,-c(which(is.element(colnames(M),cn)))]
   getCol <- function(M,cn) M[, c(which(is.element(colnames(M),cn)))]
   
+  pred <- function(model,newData) {
+    pred.LogOdds <- predict(model,newData)
+    pred.probs <- exp(pred.LogOdds) / (1 + exp(pred.LogOdds))
+    pred.probs
+  }
+
 # Read & Clean Data:
   Dat <- read.csv("../Data/Tulips.csv")
   dat <- rmCol(Dat,c("YearCollected","DayCollected"))
@@ -67,7 +73,7 @@ rm(list=ls())
   library(gam)
   #library(mgcv)
 
-  test.plot <- function(j=1,subset=F,add=F) {
+  test.plot <- function(j=1,subset=F,add=F,plot=T) {
     if (subset) {
       n <- nrow(pop[[j]])
       trainI <- sample(1:n,round(n*.8))
@@ -76,8 +82,9 @@ rm(list=ls())
       pred <- exp(predLO) / (1 + exp(predLO))
       predYN <- ifelse(pred>.5,"Y","N")
       err <- mean(predYN != pop[[j]]$Germ[-trainI])
-      plot(pop[[j]]$Chill[-trainI],pred,ylim=c(0,1),
-           main=paste("Predicted Probabilities for Germination for Population",j))
+      if (plot) 
+        plot(pop[[j]]$Chill[-trainI],pred,ylim=c(0,1),
+             main=paste("Predicted Probabilities for Germination for Population",j))
       list("mod"=mod,"pred"=pred,"err"=err)
     } else {
       mod <- NULL
@@ -89,35 +96,38 @@ rm(list=ls())
       xo  <- matrix(seq(0,12,length=1000)); colnames(xo) <- "Chill"
       predLO <- predict(mod,newdata=data.frame(xo))
       pred <- exp(predLO) / (1 + exp(predLO))
-      if (!add) {
-        plot(xo,pred,ylim=c(0,1),type='l',lwd=3,col='purple',
-             main=paste("Predicted Germination Rates for Population",j))
-      } else {
-        lines(xo,pred,lwd=3,col='purple')
+      if (plot) {
+        if (!add) {
+          plot(xo,pred,ylim=c(0,1),type='l',lwd=3,col='purple',
+               main=paste("Predicted Germination Rates for Population",j))
+        } else {
+          lines(xo,pred,lwd=3,col='purple')
+        }
       }
       list("mod"=mod,"pred"=pred)
       } 
    }
  
-  plot.all.probs <- function() {
+  plot.all.probs <- function(plt=T) {
     mod <- list(); length(mod) <- 12
     par(mfrow=c(6,2),mar=rep(3,4))
-    mod[[12]] <- test.plot(0)
+    mod[[12]] <- test.plot(0,plot=plt)
     for (i in 1:11) {
-        mod[[i]] <- test.plot(i)
+        mod[[i]] <- test.plot(i,plot=plt)
     } 
     par(mfrow=c(1,1))
     mod
   } 
 
-  mod <- plot.all.probs()
+  mod <- plot.all.probs(plt=F)
   #X11(); plot.dat()
   
   #create Full Model:
   temp <- dat
   temp$Pop <-as.factor(0)
   bigD <- rbind(dat,temp)
-  fullMod  <- gam(Germ~s(Chill)+Pop,data=bigD,family=binomial)
+  #temp <- glm(Germ~Chill+Pop,data=dat,family=binomial)
+  fullMod  <- gam(Germ~s(Chill)+Pop,data=dat,family=binomial)
   fullModI <- gam(Germ~s(Chill)+Pop+s(Chill)*Pop,data=bigD,family=binomial)
   
   plot.fm <- function(i=1,compare=F,interaction=F) {
@@ -182,26 +192,63 @@ rm(list=ls())
   }  
   plot.times()
 
-  sqdiff.mod <- function(i,j) {
-    mean((mod[[i]]$pred - mod[[j]]$pred)^2)
+  diff.mod <- function(i,j) {
+    mean(abs(mod[[i]]$pred - mod[[j]]$pred))
   }
 
-  sqdiff.all <- function() {
+  diff.all <- function() {
     M <- matrix(0,11,11)
     for (i in 1:11) {
       for (j in 1:11) {
-        M[i,j] <- sqdiff.mod(i,j)
+        M[i,j] <- diff.mod(i,j)
       }
     }
     M
   }
   
-  show.msd <- function() {
-    msd <- sqdiff.all()
-    msd[upper.tri(msd)] <- 0
-    ind <- which((msd <= .029) & (msd!=0))
-    cat("\n"); print(round(msd,3)); cat("\n")
+  show.md <- function(thresh=.05,md=diff.all(),lt=T) {
+    md[upper.tri(md)] <- 0
+    ind <- which((md < thresh) & (md!=0))
+    if (!lt) ind <- which((md > thresh) & (md!=0))
+    cat("\n"); print(round(md,3)); cat("\n")
     cat(paste("(",ifelse(ind%%11==0,11,ind%%11),",",
                   ifelse(ind%%11==0,ind%/% 11,ind%/%11+1),")",sep=""),"\n")
   }
-  show.msd()
+  
+  # 1:
+  # The effect of chilling time is not the same across different populations.
+  # The following populations behave the most similiarly under different chill times:
+  show.md(.1)
+  #show.md(10^(-8),M,F)
+
+  # 2:
+  # Ideal Chilling Time:
+  chill.time <- seq(0,12,length=1000)
+  best.chill.time <- function(i) {
+    pred <- mod[[i]]$pred
+    temp <- pred[which.max(pred)]
+    name <- as.numeric(names(temp))
+    best.chill.time <- chill.time[name]
+    best.chill.time
+  }
+  
+  # Answer 2:
+  # Best across populations in 10.21
+  # Best varies by population
+  best.chill.times <- apply(matrix(1:12),1,best.chill.time)
+  ###############################################################################
+
+  # 3: What effect will a decrease from 10 to 8 weeks of
+  #    chilling time have for tulips?
+  effect <- function(i) { # Effect of changing time from 10 to 8
+    md <- mod[[i]]$mod
+    x0 <- c(8,10);  x0 <- as.data.frame(x0); colnames(x0) <- "Chill"
+    pred.p <- pred(md,x0)
+    pred.p[1] - pred.p[2]
+  }
+  
+  # Answer 3:
+  # decrease by -0.08687949 globally
+  # the change varies
+  effect.10.to.8 <- apply(matrix(1:12),1,effect)
+  
