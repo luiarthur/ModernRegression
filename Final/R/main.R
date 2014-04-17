@@ -93,7 +93,7 @@ d <- 3 # df for natural spline
         comp[i,j] <- one.compare(i,j)
       }
     }
-    ind <- which( (comp > .05 / (choose(11,2) * 2)) & (comp!=0) ) # Bonferroni
+    ind <- which( (comp > .05 / (choose(11,2))) & (comp!=0) ) # Bonferroni
     pairs <- paste("(",ifelse(ind%%11==0,11,ind%%11),",",
                    ifelse(ind%%11==0,ind%/% 11,ind%/%11+1),")",
                    sep="",collapse=", ")
