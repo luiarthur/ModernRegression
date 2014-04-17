@@ -119,8 +119,8 @@ d <- 3 # df for natural spline
     n <- nrow(pop[[1]])
 
     get.mod <- function() {
-      trI.m.all <- sample(1:N,round(N*.8))
-      trI.m <- lapply(as.list(1:11), function(x) sample(1:n,round(n*.8)) )
+      trI.m.all <- sample(1:N,N,replace=T)
+      trI.m <- lapply(as.list(1:11), function(x) sample(1:n,n,replace=T) )
 
       p <- lapply(as.list(1:11), function(x) dat[which(dat$Pop==x),][trI.m[[x]],])
 
@@ -142,7 +142,9 @@ d <- 3 # df for natural spline
     library(doMC)
     registerDoMC(16)
 
-    sample foreach(b=1:B,.combine=rbind) %dopar% doit(i)
+    btstrp <- foreach(b=1:B,.combine=rbind) %dopar% doit(i)
+    se <- sd(btstrp)
+    c(mean(btstrp),se)
   } 
 
   # 2:
@@ -159,12 +161,12 @@ d <- 3 # df for natural spline
     best.chill.time
   }
 
-  temp <- 
+  temp <- boot(best.chill.time,12,100)
 
   # Answer 2: Do I need Uncertainties?
   # Best across populations is 12 
   # Best varies by population
-  best.chill.times <- apply(matrix(1:12),1,best.chill.time)
+  best.chill.times <- t(apply(matrix(1:12),1,function(x) t(boot(best.chill.time,x,100))))
   best.chill.times
 
   ###############################################################################
@@ -181,5 +183,6 @@ d <- 3 # df for natural spline
   # Answer 3: Do I need uncertainties?
   # decrease by  -0.04123726  globally
   # the change varies
-  effect.10.to.8 <- apply(matrix(1:12),1,effect)
+  effect.10.to.8 <- t(apply(matrix(1:12),1,function(x) t(boot(effect,x,100))))
+  effect.10.to.8 
 
