@@ -1,3 +1,5 @@
+# Are you a descendant of the Jaredites?
+# Coz you're the Shiz.
 rm(list=ls())
 
 # Parameter Declarations:
@@ -110,14 +112,46 @@ d <- 3 # df for natural spline
   # The effect of chilling time is not the same across different populations.
   # The following populations behave the most similiarly under different chill times:
   # (3,2), (4,2), (10,4), (7,6), (10,6), (11,6), (10,7), (11,7), (11,10)
+  
+  
+  boot <- function(fn,i,B=10000) {
+    N <- nrow(dat)
+    n <- nrow(pop[[1]])
+
+    get.mod <- function() {
+      trI.m.all <- sample(1:N,round(N*.8))
+      trI.m <- lapply(as.list(1:11), function(x) sample(1:n,round(n*.8)) )
+
+      p <- lapply(as.list(1:11), function(x) dat[which(dat$Pop==x),][trI.m[[x]],])
+
+      m.all <- glm(Germ~ns(Chill,d),data=dat[trI.m.all,],family=binomial)
+      m <- lapply(as.list(1:11),function(x) glm(Germ~ns(Chill,d),data=p[[x]],
+                                                  family=binomial))
+      list(m,m.all)
+    }
+
+    doit <- function(i) {
+      mds <- get.mod()
+      m.all <- mds[[2]]
+      m <- mds[[1]]
+
+      fn(i,m,m.all)
+    }
+
+    library(foreach)
+    library(doMC)
+    registerDoMC(16)
+
+    sample foreach(b=1:B,.combine=rbind) %dopar% doit(i)
+  } 
 
   # 2:
   # Ideal Chilling Time:
-  best.chill.time <- function(i=12) {
+  best.chill.time <- function(i=12,md=mod,md.all=mod.all) {
     x0 <- seq(0,12,length=1000)
     pred <- case(i==12,
-                  predict(mod.all,list("Chill"=x0),type="response"),
-                  predict(mod[[i]],list("Chill"=x0),type="response")
+                  predict(md.all,list("Chill"=x0),type="response"),
+                  predict(md[[i]],list("Chill"=x0),type="response")
                 )
     temp <- pred[which.max(pred)]
     name <- as.numeric(names(temp))
@@ -125,22 +159,26 @@ d <- 3 # df for natural spline
     best.chill.time
   }
 
+  temp <- 
+
   # Answer 2: Do I need Uncertainties?
   # Best across populations is 12 
   # Best varies by population
   best.chill.times <- apply(matrix(1:12),1,best.chill.time)
+  best.chill.times
+
   ###############################################################################
 
   # 3: What effect will a decrease from 10 to 8 weeks of
   #    chilling time have for tulips?
-  effect <- function(i) { # Effect of changing time from 10 to 8
-    md <- case(i==12,mod.all,mod[[i]])
+  effect <- function(i,md=mod,md.all=mod.all) {#Effect of changing time from 10 to 8
+    m <- case(i==12,md.all,md[[i]])
     x0 <- c(8,10);  x0 <- as.data.frame(x0); colnames(x0) <- "Chill"
-    pred.p <- predict(md,x0,type="response")
+    pred.p <- predict(m,x0,type="response")
     pred.p[1] - pred.p[2]
   }
   
-  # Answer 3:
+  # Answer 3: Do I need uncertainties?
   # decrease by  -0.04123726  globally
   # the change varies
   effect.10.to.8 <- apply(matrix(1:12),1,effect)
