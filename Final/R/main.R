@@ -39,6 +39,13 @@ d <- 3 # df for natural spline
 # Exploratory Plots  
   pop <- lapply(as.list(1:11), function(x) dat[which(dat$Pop==x),])
 
+  pdf("../latex/raw/pairs.pdf")
+    pairs(dat,col="#9999ff22",pch=20,cex=3,main="Overall")
+  dev.off()
+  #for (i in 1:11) {
+  #  pairs(pop[[i]],col="#9999ff22",pch=20,cex=3,main=paste("Pop",i))
+  #}  
+
   plot.dat <- function(i=0,add=F) {
     do <- case(add,lines,plot)
     d  <- case(i==0,apply(props,2,mean),props[i,])
