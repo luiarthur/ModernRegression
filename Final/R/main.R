@@ -27,7 +27,13 @@ d <- 3 # df for natural spline
   colnames(dat) <- c("Pop","Chill","Germ")
   counts <- table(dat)
   props  <- counts[,,2] / (counts[,,1] + counts[,,2])
+  #colnames(props) <- paste("Pop",0:6 * 2)
+  #rownames(props) <- paste(1:11,"Weeks")
   round(props,2)
+  
+  sink("../latex/raw/props.tex")
+    xtable(props,colnames)
+  sink()  
 
 # Exploratory Plots  
   pop <- lapply(as.list(1:11), function(x) dat[which(dat$Pop==x),])
@@ -77,8 +83,9 @@ d <- 3 # df for natural spline
       par(mfrow=c(1,1))
     }
     
-    plot.all()
- 
+    pdf("../latex/raw/all.pdf")
+      plot.all()
+    dev.off()
 
   one.compare <- function(i,j) {
     pops <- rbind(pop[[i]],pop[[j]])
@@ -108,6 +115,10 @@ d <- 3 # df for natural spline
   same <- comp$pairs
   options("width"=80)
 
+  sink("../latex/raw/comparisons.txt")
+    M
+    same
+  sink()  
   # 1:
   # The effect of chilling time is not the same across different populations.
   # The following populations behave the most similiarly under different chill times:
@@ -144,7 +155,9 @@ d <- 3 # df for natural spline
 
     btstrp <- foreach(b=1:B,.combine=rbind) %dopar% doit(i)
     se <- sd(btstrp)
-    c(mean(btstrp),se)
+    est <- mean(btstrp)
+    out <- matrix(c(est,qnorm(c(.025,.975),est,se)),1,3)
+    out
   } 
 
   # 2:
@@ -161,13 +174,18 @@ d <- 3 # df for natural spline
     best.chill.time
   }
 
-  temp <- boot(best.chill.time,12,100)
 
   # Answer 2: Do I need Uncertainties?
   # Best across populations is 12 
   # Best varies by population
-  best.chill.times <- t(apply(matrix(1:12),1,function(x) t(boot(best.chill.time,x,100))))
-  best.chill.times
+  best.chill.times <- t(apply(matrix(1:12),1,function(x) t(boot(best.chill.time,x,1000))))
+  colnames(best.chill.times) <- c("Estimate","95% Lower.CI","95% Upper.CI")
+  rownames(best.chill.times) <- c(paste("Population",1:11),"All Populations")
+
+  library(xtable)
+  sink("../latex/raw/best.chill.tex")
+    xtable(best.chill.times)
+  sink()  
 
   ###############################################################################
 
@@ -183,6 +201,11 @@ d <- 3 # df for natural spline
   # Answer 3: Do I need uncertainties?
   # decrease by  -0.04123726  globally
   # the change varies
-  effect.10.to.8 <- t(apply(matrix(1:12),1,function(x) t(boot(effect,x,100))))
-  effect.10.to.8 
+  effect.10.to.8 <- t(apply(matrix(1:12),1,function(x) t(boot(effect,x,1000))))
 
+  colnames(effect.10.to.8) <- c("Estimate","95% CI.Lo","95% CI.Hi")
+  rownames(effect.10.to.8) <- c(paste("Population",1:11),"All Populations")
+
+  sink("../latex/raw/effect.10.to.8.tex")
+    xtable(effect.10.to.8)
+  sink()  
