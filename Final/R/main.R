@@ -1,6 +1,7 @@
 # Are you a descendant of the Jaredites?
 # Coz you're the Shiz.
 rm(list=ls())
+library(xtable)
 
 # Parameter Declarations:
 d <- 3 # df for natural spline
@@ -32,7 +33,7 @@ d <- 3 # df for natural spline
   round(props,2)
   
   sink("../latex/raw/props.tex")
-    xtable(props,colnames)
+    xtable(props)
   sink()  
 
 # Exploratory Plots  
