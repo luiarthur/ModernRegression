@@ -187,24 +187,25 @@ d <- 3 # df for natural spline
     xtable(best.chill.times)
   sink()  
 
-  plot.best <- function() {
-    y <- best.chill.times[-12,]
+  plot.order <- function(m,ylb,xlb,mn,ylm,eps,yax) {
+    y <- m[-12,]
     i <- rev(order(y[,1]))
     y <- y[i,]
     x <- 1:11
-    plot(y[,1],pch=20,col="blue",xlim=c(1,11),ylim=c(0,16),
-         ylab="Best Chilling Time (Weeks)",xlab="Population",
-         main="Best Chilling Times",axes=F)
+    plot(y[,1],pch=20,col="blue",xlim=c(1,11),ylim=ylm,
+         ylab=ylb,xlab=xlb,
+         main=mn,axes=F)
     axis(side=1,at=1:11,i) 
-    axis(side=2,at=0:16) 
+    axis(side=2,at=yax) 
     segments(x,y[,2],x,y[,3])
-    epsilon <- 0.2
+    epsilon <- eps
     segments(x-epsilon,y[,2],x+epsilon,y[,2])
     segments(x-epsilon,y[,3],x+epsilon,y[,3])
   }
 
   pdf("../latex/raw/bct.pdf")
-    plot.best()
+    plot.order(best.chill.times,xlb="Population",ylb="Best Chilling Time (Weeks)",
+               mn="Best Chilling Times",ylm=c(0,16),eps=.2,yax=0:16)
   dev.off()  
   ###############################################################################
 
@@ -228,4 +229,11 @@ d <- 3 # df for natural spline
   sink("../latex/raw/effect.10.to.8.tex")
     xtable(effect.10.to.8)
   sink()  
+
+  pdf("../latex/raw/eff.pdf")
+    plot.order(effect.10.to.8,xlb="Population",ylb="Effect (Weeks)",ylm=c(-.8,.2),
+               mn="Effect of Decrease in Chilling Time from 10 to 8 Weeks",eps=.2,
+               yax=seq(-.8,.2,by=.1))
+    abline(h=0,col='red')
+  dev.off()  
 
