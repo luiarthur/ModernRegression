@@ -187,6 +187,23 @@ d <- 3 # df for natural spline
     xtable(best.chill.times)
   sink()  
 
+  plot.best <- function() {
+    y <- best.chill.times[-12,]
+    y <- y[rev(order(y[,1])),]
+    x <- 1:11
+    plot(x,y[,1],pch=20,col="blue",xlim=c(1,11),ylim=c(0,16),
+         ylab="Best Chilling Time (Weeks)",xlab="Population",
+         main="Best Chilling Times")
+    axis(side=1,at=1:11) 
+    segments(x,y[,2],x,y[,3])
+    epsilon <- 0.2
+    segments(x-epsilon,y[,2],x+epsilon,y[,2])
+    segments(x-epsilon,y[,3],x+epsilon,y[,3])
+  }
+
+  pdf("../latex/raw/bct.pdf")
+    plot.best()
+  dev.off()  
   ###############################################################################
 
   # 3: What effect will a decrease from 10 to 8 weeks of
@@ -209,3 +226,4 @@ d <- 3 # df for natural spline
   sink("../latex/raw/effect.10.to.8.tex")
     xtable(effect.10.to.8)
   sink()  
+
