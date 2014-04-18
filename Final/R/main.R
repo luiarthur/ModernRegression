@@ -47,13 +47,34 @@ d <- 3 # df for natural spline
        ylab="Probability",xlab="Chill Time (Weeks)")
   }
 
-
+  
 # Natural Spline:
   library(splines)
   #create Full Model:
     temp <- dat
     temp$Pop <-as.factor(0)
     bigD <- rbind(dat,temp)
+    
+    cv.fullMod <- function(i) {
+      ind <- ((i-1)*210+1):case(i==12,nrow(bigD),i*210)
+      bd <- bigD[ind,]
+      n <- length(ind)
+      trainI <- sample(1:n,round(n*.8))
+      fm <- glm(Germ~ns(Chill,d),data=bd[trainI,],family=binomial)
+      pred <- predict(fm,list("Chill"=bd$Chill[-trainI]),type="response") 
+      G <- ifelse(pred<.5,"N","Y")
+      mean(bd$Germ[-trainI] != G)
+    }
+    
+    B <- 100
+    get.err.rate <- function(y) apply(matrix(1:12),1,function(x) cv.fullMod(x))
+    err.rate <- lapply(as.list(1:B),get.err.rate)
+    err.r <- t(as.matrix(Reduce("+",err.rate) / B))
+    colnames(err.r) <- c(paste("Population",1:11),"Overall")
+
+    sink("../latex/raw/err.tex")
+      xtable(err.r)
+    sink()
 
     mod.all <- glm(Germ~ns(Chill,d),data=dat,family=binomial)
     fullMod <- glm(Germ~ns(Chill,d)+Pop+ns(Chill,d)*Pop,data=bigD,family=binomial)
@@ -121,9 +142,7 @@ d <- 3 # df for natural spline
   sink()  
   # 1:
   # The effect of chilling time is not the same across different populations.
-  # The following populations behave the most similiarly under different chill times:
-  # (3,2), (4,2), (10,4), (7,6), (10,6), (11,6), (10,7), (11,7), (11,10)
-  
+  # The following populations behave the most similiarly under different chill times: # (3,2), (4,2), (10,4), (7,6), (10,6), (11,6), (10,7), (11,7), (11,10) 
   
   boot <- function(fn,i,B=10000) {
     N <- nrow(dat)
