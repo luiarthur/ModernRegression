@@ -32,9 +32,9 @@ d <- 3 # df for natural spline
   #rownames(props) <- paste(1:11,"Weeks")
   round(props,2)
   
-  sink("../latex/raw/props.tex")
-    xtable(props)
-  sink()  
+  #sink("../latex/raw/props.tex")
+  #  xtable(props)
+  #sink()  
 
 # Exploratory Plots  
   pop <- lapply(as.list(1:11), function(x) dat[which(dat$Pop==x),])
@@ -73,9 +73,9 @@ d <- 3 # df for natural spline
     err.r <- t(as.matrix(Reduce("+",err.rate) / B))
     colnames(err.r) <- c(paste("Population",1:11),"Overall")
 
-    sink("../latex/raw/err.tex")
-      xtable(err.r)
-    sink()
+    #sink("../latex/raw/err.tex")
+    #  xtable(err.r)
+    #sink()
 
     mod.all <- glm(Germ~ns(Chill,d),data=dat,family=binomial)
     fullMod <- glm(Germ~ns(Chill,d)+Pop+ns(Chill,d)*Pop,data=bigD,family=binomial)
