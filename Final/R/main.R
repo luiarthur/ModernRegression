@@ -39,9 +39,9 @@ d <- 3 # df for natural spline
 # Exploratory Plots  
   pop <- lapply(as.list(1:11), function(x) dat[which(dat$Pop==x),])
 
-  pdf("../latex/raw/pairs.pdf")
-    pairs(dat,col="#9999ff22",pch=20,cex=3,main="Overall")
-  dev.off()
+  #pdf("../latex/raw/pairs.pdf")
+  #  pairs(dat,col="#9999ff22",pch=20,cex=3,main="Overall")
+  #dev.off()
   #for (i in 1:11) {
   #  pairs(pop[[i]],col="#9999ff22",pch=20,cex=3,main=paste("Pop",i))
   #}  
@@ -57,7 +57,7 @@ d <- 3 # df for natural spline
 
   #pdf("../latex/raw/dat.pdf")
   #  par(mfrow=c(6,2),mar=rep(3,4))
-  #  for(i in 0:11) plot.dat()
+  #  for(i in 0:11) plot.dat(i)
   #  par(mfrow=(c(1,1)))
   #dev.off()
 
