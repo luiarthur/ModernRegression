@@ -18,7 +18,7 @@ rm(list=ls())
 options("width"=120)
 library(leaps)  #regsubsets
 
-credit <- read.table("http://mheaton.byu.edu/Courses/Stat536/Case%20Studies/Credit/Data/Credit.csv",header=T,sep=",")
+credit <- read.table("Credit.csv",header=T,sep=",")
 credit <- credit[,-1]
 credit <- as.data.frame(credit)
 #pairs(credit)
