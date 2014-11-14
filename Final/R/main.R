@@ -55,11 +55,11 @@ d <- 3 # df for natural spline
        ylab="Probability",xlab="Chill Time (Weeks)")
   }
 
-  #pdf("../latex/raw/dat.pdf")
-  #  par(mfrow=c(6,2),mar=rep(3,4))
-  #  for(i in 0:11) plot.dat(i)
-  #  par(mfrow=(c(1,1)))
-  #dev.off()
+  pdf("../latex/raw/dat.pdf")
+    par(mfrow=c(6,2),mar=rep(3,4))
+    for(i in 0:11) plot.dat(i)
+    par(mfrow=(c(1,1)))
+  dev.off()
 
 # Natural Spline:
   library(splines)
