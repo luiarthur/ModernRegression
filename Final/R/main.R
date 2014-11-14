@@ -178,11 +178,9 @@ d <- 3 # df for natural spline
       m.all <- mds[[2]]
       m <- mds[[1]]
       
-      cat("\r ",round(i*100/B,4),"%")
       fn(i,m,m.all)
     }
 
-    library(foreach)
     library(doMC)
     registerDoMC(16)
 
@@ -211,7 +209,7 @@ d <- 3 # df for natural spline
   # Answer 2: Do I need Uncertainties?
   # Best across populations is 12 
   # Best varies by population
-  best.chill.times <- t(apply(matrix(1:12),1,function(x) t(boot(best.chill.time,x,1000))))
+  best.chill.times <- t(apply(matrix(1:12),1,function(x) t(boot(best.chill.time,x,100))))
   colnames(best.chill.times) <- c("Estimate","95% Lower.CI","95% Upper.CI")
   rownames(best.chill.times) <- c(paste("Population",1:11),"All Populations")
 
@@ -254,7 +252,7 @@ d <- 3 # df for natural spline
   # Answer 3: Do I need uncertainties?
   # decrease by  -0.04123726  globally
   # the change varies
-  effect.10.to.8 <- t(apply(matrix(1:12),1,function(x) t(boot(effect,x,1000))))
+  effect.10.to.8 <- t(apply(matrix(1:12),1,function(x) t(boot(effect,x,100))))
 
   colnames(effect.10.to.8) <- c("Estimate","95% CI.Lo","95% CI.Hi")
   rownames(effect.10.to.8) <- c(paste("Population",1:11),"All Populations")
