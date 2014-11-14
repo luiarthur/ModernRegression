@@ -1,5 +1,5 @@
-# Are you a descendant of the Jaredites?
-# Coz you're the Shiz.
+# Code to be run in UNIX/linux environment
+system("mkdir -p ../latex/raw")
 rm(list=ls())
 library(xtable)
 
@@ -177,7 +177,8 @@ d <- 3 # df for natural spline
       mds <- get.mod()
       m.all <- mds[[2]]
       m <- mds[[1]]
-
+      
+      cat("\r ",round(i*100/B,4),"%")
       fn(i,m,m.all)
     }
 
